@@ -12,9 +12,10 @@ import java.time.LocalTime;
  * @version 1.00
  */
 public class Slot {
-  private final long durationMWF = 60;
-  private final long durationTR  = 90;
-  private final long durationF   = 120;
+  private static final long durationMWF = 60;
+  private static final long durationTR  = 90;
+  private static final long durationF   = 120;
+  private static final LocalTime eveningTime = LocalTime.of( 18, 00 );
   private LocalTime startTime;
   private LocalTime endTime;
   private int minAssign;
@@ -96,6 +97,16 @@ public class Slot {
       else {
         return this.startTime.compareTo( other.endTime ) < 0;
       }
+  }
+
+  /**
+   * Determines if the slot is classified as an evening time slot.
+   * Evening slots are any slots that start at 18:00 or later.
+   *
+   * @return True if the slot is an evening slot, false otherwise.
+   */
+  public boolean isEveningSlot() {
+    return this.startTime.compareTo( eveningTime ) >= 0;
   }
 
   /**
