@@ -110,6 +110,19 @@ public class Slot {
   }
 
   /**
+   * Determines if this slot is equivalent to a different one.
+   * Slots are equivalent if they occur on the same day and time ranges.
+   * The min/max assign may differ depending on if the slot is for labs or
+   * courses
+   *
+   * @param other The other slot to test against
+   * @return True if the two slots are equivalent, false otherwise.
+   */
+  public boolean equivalent( Slot other ) {
+    return ( this.day == other.day ) && ( this.startTime.equals( other.startTime() ) );
+  }
+
+  /**
    * Transforms the slot into a string.
    *
    * @return The string representation of a slot, for example, "FR, 10:00"
