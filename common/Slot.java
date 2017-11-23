@@ -6,6 +6,8 @@ import java.time.LocalTime;
  * all the minute details about valid time and day combinations, and provides
  * an interface to check if two time slots take up some common times.
  *
+ * Does not differentiate between a course slot or a lab slot.
+ *
  * @author Kevin
  * @version 1.00
  */
@@ -15,6 +17,8 @@ public class Slot {
   private final long durationF   = 120;
   private LocalTime startTime;
   private LocalTime endTime;
+  private int minAssign;
+  private int maxAssign;
 
   public enum Day{
     MO ( "Mo" ),
@@ -40,8 +44,11 @@ public class Slot {
    * @param day the days of the time slot; can be Day.MO, Day.TU. or Day.FR
    * @param hour the starting hour of the time slot
    * @param minute the starting minutes of the time slot
+   * @param maxAssign the maximum number of allowed Assignables assigned to this slot
+   * @param minAssign the minimum required number of Assignables assigned to this slot
    */
-  public Slot( Day day, int hour, int minute ) {
+  public Slot( Day day, int hour, int minute, int maxAssign, int minAssign ) {
+    // TODO: verify that the given day/time combination is valid. e.g., reject TU 11:00
     this.day = day;
     this.startTime = LocalTime.of( hour, minute );
     if( day == Day.TU ) {
@@ -53,6 +60,9 @@ public class Slot {
     else {
       this.endTime = startTime.plusMinutes( durationMWF );
     }
+
+    this.maxAssign = maxAssign;
+    this.minAssign = minAssign;
   }
 
   /**
@@ -97,3 +107,4 @@ public class Slot {
     return String.format("%s, %s", day.toString(), startTime.toString());
   }
 }
+
