@@ -3,8 +3,14 @@
  */
 package scheduler;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Scanner;
+
 import common.*;
 import java.util.Random;
+import parser.*;
 
 /**
  * @author dengel
@@ -71,9 +77,23 @@ Assignment assign;
 	
 	
 	public static void main(String[] args) {
-		
-		Scheduler s = new Scheduler();
-		s.makeSchedule();
+		//Scanner scan = new Scanner(System.in);
+		//System.out.print("Enter the name of your input file: ");
+		//String filename = scan.nextLine();
+		String filename = "gehtnicht4.txt";
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(filename));
+			String line;
+			while((line = br.readLine()) != null) {
+				if (line.equals("Name:")) {
+					System.out.println(line);
+				}
+			}
+		} catch (java.io.FileNotFoundException e) {
+			System.out.println("File " + filename + " does not exist!");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 	}
 
