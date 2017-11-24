@@ -119,7 +119,7 @@ public class Slot {
    * @return True if the two slots are equivalent, false otherwise.
    */
   public boolean equivalent( Slot other ) {
-    return ( this.day == other.day ) && ( this.startTime.equals( other.startTime() ) );
+    return ( this.day == other.day ) && ( this.startTime.equals( other.startTime ) );
   }
 
   /**
