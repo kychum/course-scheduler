@@ -31,6 +31,19 @@ public class Slot {
       this.dayName = dayName;
     }
 
+    public static Day of( String day ) {
+      if( day.matches( "(?i)(MO)(NDAY)?" ) ) {
+        return MO;
+      }
+      else if( day.matches( "(?i)(TU)(ESDAY)?" ) ) {
+        return TU;
+      }
+      else {
+        //TODO: sanity and error checking
+        return FR;
+      }
+    }
+
     public String toString() {
       return dayName;
     }
@@ -43,15 +56,14 @@ public class Slot {
    * the assignment specifications.
    *
    * @param day the days of the time slot; can be Day.MO, Day.TU. or Day.FR
-   * @param hour the starting hour of the time slot
-   * @param minute the starting minutes of the time slot
+   * @param time the starting time of the slot
    * @param maxAssign the maximum number of allowed Assignables assigned to this slot
    * @param minAssign the minimum required number of Assignables assigned to this slot
    */
-  public Slot( Day day, int hour, int minute, int maxAssign, int minAssign ) {
+  public Slot( Day day, LocalTime time, int maxAssign, int minAssign ) {
     // TODO: verify that the given day/time combination is valid. e.g., reject TU 11:00
     this.day = day;
-    this.startTime = LocalTime.of( hour, minute );
+    this.startTime = time;
     if( day == Day.TU ) {
       this.endTime = startTime.plusMinutes( durationTR );
     }
@@ -64,6 +76,18 @@ public class Slot {
 
     this.maxAssign = maxAssign;
     this.minAssign = minAssign;
+  }
+
+  /**
+   * Constructs a slot object from string parameters.
+   *
+   * @param day string representation of the day
+   * @param time string representation of the time, e.g. "10:00"
+   * @param hour the starting hour of the time slot
+   * @param minute the starting minutes of the time slot
+   */
+  public Slot( String day, String time, int maxAssign, int minAssign ) {
+    this( Day.of( day ), LocalTime.parse( time ), maxAssign, minAssign );
   }
 
   /**
