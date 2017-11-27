@@ -16,6 +16,7 @@ public class Lab extends Assignable {
    *
    * @param identifier the course identifier
    * @param courseSection the section of the lecture associated with this lab
+   * @param allSection flag to check whether all information of lab has been supplied
    * @param section the lab/tutorial's section number
    * @param isTutorial determines if the lab should be classified as a tutorial
    */
