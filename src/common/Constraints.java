@@ -13,10 +13,37 @@ public class Constraints {
   private int pen_section; // sections mapped to the same section
   public Constraints() {
 	  // initialize
+	  defaultPenalties(); //
+	  initMaps();
+  }
+  
+  public void initMaps() {
 	  pair = new TreeMap<>();
 	  incomp = new TreeMap<>();
 	  timeslot = new TreeMap<>();
   }
+  
+  // Initialize constraints with penalty values.
+  public Constraints(int courseMin, int labsMin, int notPaired, int section) {
+	  setPenalties(courseMin, labsMin, notPaired, section);
+	  initMaps();
+  }
+  
+  // This is called when constraints not defined. This *SHOULDN'T* happen, but this is here just in case.
+  public void defaultPenalties() {
+	  pen_coursemin = 10;
+	  pen_labsmin = 10;
+	  pen_notpaired = 10;
+	  pen_section = 10;
+  }
+  
+  public void setPenalties(int courseMin, int labsMin, int notPaired, int section) {
+	  pen_coursemin = courseMin;
+	  pen_labsmin = labsMin;
+	  pen_notpaired = notPaired;
+	  pen_section = section;
+  }
+  
   public boolean addIncomp(Assignable a1, Assignable a2) {
 	  // Returns true if adding constraint succeeded, false if failed
 	  if (checkIncomp(a1, a2)) {
@@ -47,6 +74,7 @@ public class Constraints {
 		  return true;
 	  }
   }
+
   
   public boolean checkPair(Assignable a1, Assignable a2) {
 	  if (pair.get(a1).equals(a2) || pair.get(a2).equals(a1))
