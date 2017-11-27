@@ -194,7 +194,7 @@ public class Parser{
       inFile = Files.newBufferedReader( FileSystems.getDefault().getPath( file ) );
       while( inFile.ready() ) {
         String line = inFile.readLine().trim();
-        if( !changeMode( line ) ) {
+        if( !changeMode( line ) && !line.equals( "" ) ) {
           parseLine( line, instance );
         }
       }
