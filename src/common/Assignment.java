@@ -34,6 +34,12 @@ public class Assignment {
     }
   }
 
+  private void verifyUnwanted( Assignable course, Slot slot ) throws HardConstraintViolationException {
+    if( this.instance.getConstraints().checkUnwanted( course, slot ) ) {
+      throw new HardConstraintViolationException( "Assignment is of a course to an unwanted slot." );
+    }
+  }
+
   private void verifyIncomp( Assignable course, ArrayList<Assignable> assigned ) {
     for( Assignable a : assigned ) {
       if( this.instance.getConstraints().checkIncomp( a, course ) ) {
@@ -58,6 +64,7 @@ public class Assignment {
 
     // Check constraints
     verifyIncomp( assignment, currentList );
+    verifyUnwanted( assignment, slot );
     verifyMax( slot );
 
 	  currentList.add(assignment);
@@ -78,6 +85,8 @@ public class Assignment {
 	  s2List = this.assignments.get(s2);
     verifyIncomp( a1, s2List, a2 );
     verifyIncomp( a2, s1List, a1 );
+    verifyUnwanted( a1, s2 );
+    verifyUnwanted( a2, s1 );
 	  s1List.remove(a1);
 	  s1List.add(a2);
 	  s2List.remove(a2);

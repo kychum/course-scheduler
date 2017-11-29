@@ -62,5 +62,9 @@ public class Instance{
   public boolean addPair( Assignable first, Assignable second ) {
     return this.constraints.addPair( first, second );
   }
+
+  public boolean addUnwanted( Assignable assn, Slot slot ) {
+    return this.constraints.addUnwanted( assn, slot );
+  }
 }
 

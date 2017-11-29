@@ -77,7 +77,7 @@ public class Parser{
         String[] uwParts = tokenize( line, ",", 1 );
         Assignable uwAssigns = parseAssignable( uwParts[0] );
         Slot uwSlot = parseSlot( uwParts[1] );
-        // TODO: add to instance
+        instance.addUnwanted( uwAssigns, uwSlot );
         break;
       case PREF:
         String[] prefParts = tokenize( line, "," );
@@ -98,6 +98,7 @@ public class Parser{
         String[] partialParts = tokenize( line, ",", 1 );
         Assignable partialAssigns = parseAssignable( partialParts[0] );
         Slot partialSlot = parseSlot( partialParts[1] );
+        // TODO: add to instance
         break;
     }
 	}
