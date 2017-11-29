@@ -147,6 +147,14 @@ public class Slot {
     return ( this.day == other.day ) && ( this.startTime.equals( other.startTime ) );
   }
 
+  public int getMaxAssign() {
+    return maxAssign;
+  }
+
+  public int getMinAssign() {
+    return minAssign;
+  }
+
   /**
    * Transforms the slot into a string.
    *

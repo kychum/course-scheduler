@@ -27,8 +27,16 @@ public class Instance{
     return new ArrayList<Slot>( courseSlots );
   }
 
+  public ArrayList<Slot> getLabSlots() {
+    return new ArrayList<Slot>( labSlots );
+  }
+
   public ArrayList<Course> getCourses() {
     return new ArrayList<Course>( courses );
+  }
+
+  public Constraints getConstraints() {
+    return constraints;
   }
 
   public void addCourse( Course course ) {

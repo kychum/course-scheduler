@@ -26,7 +26,7 @@ Assignment assign;
 	public void makeSchedule() {
 		
 		Instance inst = parseFile();
-		assign = new Assignment();
+		assign = new Assignment( inst );
 		rand = new Random(0);
 		initialize();
 		//hillClimb();
