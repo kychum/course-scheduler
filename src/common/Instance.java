@@ -9,12 +9,14 @@ public class Instance{
   private HashSet<Lab> labs;
   private HashSet<Slot> courseSlots;
   private HashSet<Slot> labSlots;
+  private Constraints constraints;
 
   public Instance () {
     courses = new HashSet<Course>();
     labs = new HashSet<Lab>();
     courseSlots = new HashSet<Slot>();
     labSlots = new HashSet<Slot>();
+    constraints = new Constraints();
   }
 
   public void setName( String name ) {
@@ -43,6 +45,14 @@ public class Instance{
 
   public void addLabSlot( Slot slot ) {
     this.labSlots.add( slot );
+  }
+
+  public boolean addIncomp( Assignable first, Assignable second ) {
+    return this.constraints.addIncomp( first, second );
+  }
+
+  public boolean addPair( Assignable first, Assignable second ) {
+    return this.constraints.addPair( first, second );
   }
 }
 

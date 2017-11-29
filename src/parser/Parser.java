@@ -69,7 +69,9 @@ public class Parser{
         Assignable[] ncAssigns = Arrays.stream( tokenize( line, "," ) )
           .map( s -> parseAssignable( s ) )
           .toArray( Assignable[]::new );
-        // TODO: add to instance
+        if( !instance.addIncomp( ncAssigns[0], ncAssigns[1] ) ) {
+          log.warning( String.format( "Failed to set [%s] and [%s] as incompatible. Was the entry already present?", ncAssigns[0].toString(), ncAssigns[1].toString() ) );
+        }
         break;
       case UNWANTED:
         String[] uwParts = tokenize( line, ",", 1 );
@@ -88,7 +90,9 @@ public class Parser{
         Assignable[] pairAssigns = Arrays.stream( tokenize( line, "," ) )
           .map( s -> parseAssignable( s ) )
           .toArray( Assignable[]::new );
-        // TODO: add to instance
+        if( !instance.addPair( pairAssigns[0], pairAssigns[1] ) ) {
+          log.warning( String.format( "Unable to set [%s] and [%s] as paired. Was it already defined earlier in the file?", pairAssigns[0], pairAssigns[1] ) );
+        }
         break;
       case PARTIAL:
         String[] partialParts = tokenize( line, ",", 1 );
