@@ -40,10 +40,10 @@ Assignment assign;
 	private void initialize() {
 		
 		int courseSlotSize = inst.getCourseSlots().size();
-		for (Course s : inst.getCourses()) {
+		for (Course c : inst.getCourses()) {
 			int nextSlotIndex = rand.nextInt() % courseSlotSize;
 			Slot courseSlot = inst.getCourseSlots().get(nextSlotIndex);
-			if (maintainsHardConstraints(courseSlot, s)) {
+			if (maintainsHardConstraints(courseSlot, c)) {
 				
 				
 				// TODO assign course to slot
