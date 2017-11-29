@@ -1,4 +1,5 @@
 package common;
+import java.util.Objects;
 
 /**
  * Class that represents both labs and tutorials.
@@ -57,6 +58,10 @@ public class Lab extends Assignable {
       course = identifier + String.format("LEC %2d", courseSection);
     }
     return String.format( "%s %s %2d", course, (isTutorial ? "TUT" : "LAB"), section );
+  }
+
+  public int hashCode() {
+    return Objects.hash( this.identifier, this.courseSection, this.allSections, this.section, this.isTutorial);
   }
 }
 

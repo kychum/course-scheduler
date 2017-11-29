@@ -1,4 +1,5 @@
 package common;
+import java.util.Objects;
 
 /**
  * Class that represents a course section.
@@ -25,6 +26,10 @@ public class Course extends Assignable {
    */
   public String toString() {
     return String.format("%s LEC %2d", identifier, section);
+  }
+
+  public int hashCode() {
+    return Objects.hash( this.identifier, this.section );
   }
 }
 

@@ -1,5 +1,6 @@
 package common;
 import java.time.LocalTime;
+import java.util.Objects;
 
 /**
  * Representation of a time slot used to schedule courses. This class handles
@@ -153,6 +154,10 @@ public class Slot {
    */
   public String toString() {
     return String.format("%s, %s", day.toString(), startTime.toString());
+  }
+
+  public int hashCode() {
+    return Objects.hash(day, startTime, endTime, maxAssign, minAssign);
   }
 }
 
