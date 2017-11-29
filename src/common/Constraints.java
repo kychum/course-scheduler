@@ -1,10 +1,11 @@
 package common;
 import java.util.TreeMap;
+import java.util.HashSet;
 
 // Initialized once; the constraints class object is meant to store all the various mappings that define the problem constraints.
 public class Constraints {
-  TreeMap<Assignable, Assignable> pair; // Represents case where two courses should be paired together
-  TreeMap<Assignable, Assignable> incomp; // Represents case where two courses cannot both be in same timeslot
+  TreeMap<Assignable, HashSet<Assignable>> pair; // Represents case where two courses should be paired together
+  TreeMap<Assignable, HashSet<Assignable>> incomp; // Represents case where two courses cannot both be in same timeslot
   TreeMap<Assignable, Slot> timeslot; // represents case where a course cannot be in a certain timeslot
   // penalty values for various penalties
   private int pen_coursemin; // timeslot not filled to minimal courses
@@ -46,44 +47,33 @@ public class Constraints {
   
   public boolean addIncomp(Assignable a1, Assignable a2) {
 	  // Returns true if adding constraint succeeded, false if failed
-	  if (checkIncomp(a1, a2)) {
-		  return false;
-	  }
-	  else {
-		  incomp.put(a1, a2);
-		  return true;
-	  }
+    if( !incomp.containsKey( a1 ) ) {
+      incomp.put( a1, new HashSet<Assignable>() );
+    }
+    if( !incomp.containsKey( a2 ) ) {
+      incomp.put( a2, new HashSet<Assignable>() );
+    }
+    return incomp.get(a1).add(a2) && incomp.get(a2).add(a1);
   }
   
   public boolean checkIncomp(Assignable a1, Assignable a2) {
-	  if (incomp.get(a1).equals(a2) || incomp.get(a2).equals(a1))
-	  {
-		  return true;
-	  }
-	  else {
-		  return false;
-	  }
+    // Since the mapping is two-way, it should always only check one of these
+	  return (incomp.get(a1).contains(a2) || incomp.get(a2).contains(a1));
   }
   
   public boolean addPair(Assignable a1, Assignable a2) {
-	  if (checkPair(a1, a2)) {
-		  return false;
-	  }
-	  else {
-		  pair.put(a1, a2);
-		  return true;
-	  }
+    if( !pair.containsKey( a1 ) ) {
+      pair.put( a1, new HashSet<Assignable>() );
+    }
+    if( !pair.containsKey( a2 ) ) {
+      pair.put( a2, new HashSet<Assignable>() );
+    }
+    return (pair.get(a1).add(a2) && pair.get(a2).add(a1));
   }
 
   
   public boolean checkPair(Assignable a1, Assignable a2) {
-	  if (pair.get(a1).equals(a2) || pair.get(a2).equals(a1))
-	  {
-		  return true;
-	  }
-	  else {
-		  return false;
-	  }
+    return (pair.get(a1).contains(a2) || pair.get(a2).contains(a1));
   }
   
   
