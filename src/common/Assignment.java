@@ -83,10 +83,12 @@ public class Assignment {
 	  ArrayList<Assignable> s1List, s2List;
 	  s1List = this.assignments.get(s1);
 	  s2List = this.assignments.get(s2);
+
     verifyIncomp( a1, s2List, a2 );
     verifyIncomp( a2, s1List, a1 );
     verifyUnwanted( a1, s2 );
     verifyUnwanted( a2, s1 );
+
 	  s1List.remove(a1);
 	  s1List.add(a2);
 	  s2List.remove(a2);

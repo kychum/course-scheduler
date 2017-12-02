@@ -15,10 +15,12 @@ import java.util.Objects;
 public class Slot {
   private static final long durationMWF = 60;
   private static final long durationTR  = 90;
+  private static final long durationLabTR = 60;
   private static final long durationF   = 120;
   private static final LocalTime eveningTime = LocalTime.of( 18, 00 );
   private LocalTime startTime;
   private LocalTime endTime;
+  private boolean isLab;
   private int minAssign;
   private int maxAssign;
 
@@ -60,13 +62,20 @@ public class Slot {
    * @param time the starting time of the slot
    * @param maxAssign the maximum number of allowed Assignables assigned to this slot
    * @param minAssign the minimum required number of Assignables assigned to this slot
+   * @param isLab if the slot is a lab slot
    */
-  public Slot( Day day, LocalTime time, int maxAssign, int minAssign ) {
+  public Slot( Day day, LocalTime time, int maxAssign, int minAssign, boolean isLab ) {
     // TODO: verify that the given day/time combination is valid. e.g., reject TU 11:00
     this.day = day;
     this.startTime = time;
+    this.isLab = isLab;
     if( day == Day.TU ) {
-      this.endTime = startTime.plusMinutes( durationTR );
+      if( isLab ) {
+        this.endTime = startTime.plusMinutes( durationLabTR );
+      }
+      else {
+        this.endTime = startTime.plusMinutes( durationTR );
+      }
     }
     else if( day == Day.FR ){
       this.endTime = startTime.plusMinutes( durationF );
@@ -86,9 +95,10 @@ public class Slot {
    * @param time string representation of the time, e.g. "10:00"
    * @param hour the starting hour of the time slot
    * @param minute the starting minutes of the time slot
+   * @param isLab if the slot is a lab slot
    */
-  public Slot( String day, String time, int maxAssign, int minAssign ) {
-    this( Day.of( day ), LocalTime.parse( time ), maxAssign, minAssign );
+  public Slot( String day, String time, int maxAssign, int minAssign, boolean isLab ) {
+    this( Day.of( day ), LocalTime.parse( time ), maxAssign, minAssign, isLab );
   }
 
   /**
@@ -135,16 +145,18 @@ public class Slot {
   }
 
   /**
-   * Determines if this slot is equivalent to a different one.
-   * Slots are equivalent if they occur on the same day and time ranges.
-   * The min/max assign may differ depending on if the slot is for labs or
-   * courses
+   * Determines if this slot is equivalent to a different one,
+   * i.e. if they have the exact same values for all vars.
    *
    * @param other The other slot to test against
    * @return True if the two slots are equivalent, false otherwise.
    */
   public boolean equivalent( Slot other ) {
-    return ( this.day == other.day ) && ( this.startTime.equals( other.startTime ) );
+    return ( this.day == other.day ) && ( this.startTime.equals( other.startTime ) ) &&
+      this.endTime.equals( other.endTime ) &&
+      this.isLab == other.isLab &&
+      this.maxAssign == other.maxAssign &&
+      this.minAssign == other.minAssign;
   }
 
   public int getMaxAssign() {
@@ -164,8 +176,31 @@ public class Slot {
     return String.format("%s, %s", day.toString(), startTime.toString());
   }
 
+  public boolean equals( Slot other ) {
+    return ( this.startTime == other.startTime &&
+        this.day == other.day &&
+        this.isLab == other.isLab &&
+        this.maxAssign == other.maxAssign &&
+        this.minAssign == other.minAssign &&
+        this.endTime == other.endTime );
+  }
+
+  /**
+   * Determines if this slot is equal to a different one.
+   * Slots are equivalent if they occur on the same day and time ranges.
+   * The min/max assign may differ depending on if the slot is for labs or
+   * courses
+   *
+   * @param other The other slot to test against
+   * @return True if the two slots are equal, false otherwise.
+   */
+  public boolean equals( Slot other ) {
+    return ( this.day == other.day ) && ( this.startTime.equals( other.startTime ) ) &&
+      this.endTime.equals( other.endTime );
+  }
+
   public int hashCode() {
-    return Objects.hash(day, startTime, endTime, maxAssign, minAssign);
+    return Objects.hash(day, startTime, endTime);
   }
 }
 
