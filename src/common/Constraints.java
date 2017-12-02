@@ -1,12 +1,12 @@
 package common;
-import java.util.TreeMap;
+import java.util.HashMap;
 import java.util.HashSet;
 
 // Initialized once; the constraints class object is meant to store all the various mappings that define the problem constraints.
 public class Constraints {
-  TreeMap<Assignable, HashSet<Assignable>> pair; // Represents case where two courses should be paired together
-  TreeMap<Assignable, HashSet<Assignable>> incomp; // Represents case where two courses cannot both be in same timeslot
-  TreeMap<Assignable, HashSet<Slot>> unwanted; // represents case where a course cannot be in a certain timeslot
+  HashMap<Assignable, HashSet<Assignable>> pair; // Represents case where two courses should be paired together
+  HashMap<Assignable, HashSet<Assignable>> incomp; // Represents case where two courses cannot both be in same timeslot
+  HashMap<Assignable, HashSet<Slot>> unwanted; // represents case where a course cannot be in a certain timeslot
   // penalty values for various penalties
   private int pen_coursemin; // timeslot not filled to minimal courses
   private int pen_labsmin; // timeslot not filled to minimal labs
@@ -19,9 +19,9 @@ public class Constraints {
   }
 
   public void initMaps() {
-	  pair = new TreeMap<>();
-	  incomp = new TreeMap<>();
-	  unwanted = new TreeMap<>();
+	  pair = new HashMap<>();
+	  incomp = new HashMap<>();
+	  unwanted = new HashMap<>();
   }
 
   // Initialize constraints with penalty values.
@@ -78,13 +78,28 @@ public class Constraints {
 
   public boolean addUnwanted( Assignable assign, Slot slot ) {
     if( !unwanted.containsKey( assign ) ) {
-      unwanted.put( a1, new HashSet<Slot>() );
+      unwanted.put( assign, new HashSet<Slot>() );
     }
-    return unwanted.get( a1 ).add( slot );
+    return unwanted.get( assign ).add( slot );
   }
 
   public boolean checkUnwanted( Assignable assign, Slot slot ) {
-    return unwanted.get( a1 ).contains( slot );
+    return unwanted.get( assign ).contains( slot );
   }
 
+  HashMap<Assignable, HashSet<Assignable>> getIncomp() {
+    return incomp;
+  }
+
+  HashMap<Assignable, HashSet<Assignable>> getPair() {
+    return pair;
+  }
+
+  HashMap<Assignable, HashSet<Slot>> getUnwanted() {
+    return unwanted;
+  }
+
+  HashSet<Assignable> getIncomp( Assignable assign ) {
+    return incomp.get( assign );
+  }
 }

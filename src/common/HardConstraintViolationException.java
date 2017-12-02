@@ -1,7 +1,7 @@
 package common;
-import java.lang.Exception;
+import java.lang.RuntimeException;
 
-public class HardConstraintViolationException extends Exception {
+public class HardConstraintViolationException extends RuntimeException {
   public HardConstraintViolationException() {
     this( "" );
   }

@@ -2,6 +2,7 @@ package common;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Instance{
   private String name;
@@ -10,6 +11,7 @@ public class Instance{
   private HashSet<Slot> courseSlots;
   private HashSet<Slot> labSlots;
   private Constraints constraints;
+  private HashMap<Assignable, HashSet<Slot>> partAssign;
 
   public Instance () {
     courses = new HashSet<Course>();
@@ -17,6 +19,7 @@ public class Instance{
     courseSlots = new HashSet<Slot>();
     labSlots = new HashSet<Slot>();
     constraints = new Constraints();
+    partAssign = new HashMap<>();
   }
 
   public void setName( String name ) {
@@ -65,6 +68,179 @@ public class Instance{
 
   public boolean addUnwanted( Assignable assn, Slot slot ) {
     return this.constraints.addUnwanted( assn, slot );
+  }
+
+  public boolean addPartAssign( Assignable assn, Slot slot ) {
+    if( !this.partAssign.containsKey( assn ) ) {
+      this.partAssign.put( assn, new HashSet<Slot>() );
+    }
+    return this.partAssign.get( assn ).add( slot );
+  }
+
+  /**
+   * Adds any applicable special cases to the instance and verifies its validity.
+   *
+   * @throws HardConstraintViolationException if impossible to solve from given constraints
+   */
+  public void finalizeInstance() throws HardConstraintViolationException{
+    for( Course c : courses ) {
+      // forbid courses from being scheduled at the same time as their labs
+      for( Lab l : labs ) {
+        if( c.getNumber() == l.getNumber() ) {
+          if( l.isForAllSections() || (l.getSection() == c.getSection()) ) {
+            constraints.addIncomp( c, l );
+          }
+        }
+      }
+
+      // courses on the 500-level must be scheduled at different times.
+      if( c.is500Level() ) {
+        courses.stream()
+          .filter( c2 -> !c.equals( c2 ) && c2.is500Level() )
+          .forEach( c2 -> constraints.addIncomp( c, c2 ) );
+      }
+    }
+
+    if( courses.stream().anyMatch( c -> c.getNumber() == 313 ) ){
+      add813();
+    }
+    if( courses.stream().anyMatch( c -> c.getNumber() == 413 ) ){
+      add913();
+    }
+
+    verifyInstance();
+  }
+
+  /**
+   * Checks that the instance is valid
+   *
+   * @throws HardConstraintViolationException if the instance is impossible to satisfy
+   */
+  public void verifyInstance() throws HardConstraintViolationException {
+    // Ensure we can schedule everything
+    int maxCourse = courseSlots.stream().mapToInt( s -> s.getMaxAssign() ).sum();
+    int maxLab = labSlots.stream().mapToInt( s -> s.getMaxAssign() ).sum();
+    if( courses.size() > maxCourse ) {
+      throw new HardConstraintViolationException( "There are not enough slots for the number of courses given." );
+    }
+    if( labs.size() > maxLab ) {
+      throw new HardConstraintViolationException( "There are not enough slots for the number of labs given." );
+    }
+
+    // Check partial assignments
+    partAssign.forEach( (course, slot) -> {
+      if( courses.contains( course ) && course.getNumber() != 813 && course.getNumber() != 913 ) {
+        if( !courseSlots.contains( slot ) ) {
+          throw new HardConstraintViolationException( "Course is not assigned to a course slot" );
+        }
+      }
+      else if( labs.contains( course ) ) {
+        if( !labSlots.contains( slot ) ) {
+          throw new HardConstraintViolationException( "Lab is not assigned to a lab slot" );
+        }
+      }
+      else {
+        throw new HardConstraintViolationException( "Assignable does not exist in the list of courses or labs" );
+      }
+    } );
+  }
+
+  private void add813() {
+    Course cpsc813 = Course.getCPSC813();
+    addPartAssign( cpsc813, Slot.getSpecialSlot() );
+    courses.stream()
+      .filter( c -> c.getNumber() == 313 )
+      .forEach( c -> {
+        constraints.addIncomp( cpsc813, c );
+        for( Assignable c2 : constraints.getIncomp( c ) ) {
+          constraints.addIncomp( cpsc813, c2 );
+        }
+      } );
+  }
+
+  private void add913() {
+    Course cpsc913 = Course.getCPSC913();
+    addPartAssign( cpsc913, Slot.getSpecialSlot() );
+    courses.stream()
+      .filter( c -> c.getNumber() == 413 )
+      .forEach( c -> {
+        constraints.addIncomp( cpsc913, c );
+        for( Assignable c2 : constraints.getIncomp( c ) ) {
+          constraints.addIncomp( cpsc913, c2 );
+        }
+      } );
+
+  }
+
+  public String toString() {
+    StringBuilder out = new StringBuilder();
+    out.append("Name:\n");
+    out.append(name + "\n\n");
+
+    out.append("Course Slots:\n");
+    courseSlots.stream().sorted().forEach( s -> out.append( s.toString() + "\n" ) );
+    out.append("\n");
+
+    out.append("Lab Slots:\n");
+    labSlots.stream().sorted().forEach( s -> out.append( s.toString() + "\n" ) );
+    out.append("\n");
+
+    out.append("Courses:\n");
+    courses.stream().map( Course::toString ).sorted().forEach( s -> out.append( s + "\n" ) );
+    out.append("\n");
+
+    out.append("Labs:\n");
+    labs.stream().map( Lab::toString ).sorted().forEach( s -> out.append( s + "\n" ) );
+    out.append("\n");
+
+    out.append("Not compatible:\n");
+    HashMap<Assignable, HashSet<Assignable>> incomp = constraints.getIncomp();
+    incomp.keySet().stream()
+      .sorted()
+      .map( a1 -> incomp.get( a1 ).stream()
+          .filter( a2 -> a1.compareTo( a2 ) < 0 )
+          .map( a2 -> a1.toString() + ", " + a2.toString() + "\n" )
+          .reduce( "", (s1, s2) -> s1 + s2 ) )
+      .forEach( s -> out.append( s ) );
+
+    out.append("\n");
+
+    out.append("Unwanted:\n");
+    HashMap<Assignable, HashSet<Slot>> unwanted = constraints.getUnwanted();
+    unwanted.keySet().stream()
+      .sorted()
+      .forEach( a -> {
+        unwanted.get(a).stream()
+          .sorted()
+          .forEach( s -> out.append( a.toString() + ", " + s.toString() + "\n" ) );
+      });
+    out.append("\n");
+
+    out.append("Preferences:\n");
+    out.append("\n");
+
+    out.append("Pair:\n");
+    HashMap<Assignable, HashSet<Assignable>> pair = constraints.getPair();
+    pair.keySet().stream()
+      .sorted()
+      .forEach( a1 -> {
+        pair.get(a1).stream()
+          .filter( a2 -> a1.compareTo( a2 ) < 0 )
+          .forEach( a2 -> out.append( a1.toString() + ", " + a2.toString() + "\n" ) );
+      });
+    out.append("\n");
+
+    out.append("Partial assignments:\n");
+    partAssign.keySet().stream()
+      .sorted()
+      .forEach( assn ->
+        partAssign.get( assn ).stream()
+          .sorted()
+          .forEach( s -> out.append( assn.toString() + ", " + s.toString() + "\n" ) )
+      );
+    out.append("\n");
+
+    return out.toString();
   }
 }
 

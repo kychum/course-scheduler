@@ -37,8 +37,9 @@ public class Lab extends Assignable {
    * @param section the lab/tutorial's section number
    * @param isTutorial determines if the lab should be classified as a tutorial
    */
-  public Lab( String identifier, int section, boolean isTutorial ) {
+  public Lab( String identifier, int courseNum, int section, boolean isTutorial ) {
     this.identifier = identifier;
+    this.courseNum = courseNum;
     this.courseSection = -1;
     this.allSections = true;
     this.section = section;
@@ -53,16 +54,70 @@ public class Lab extends Assignable {
   public String toString() {
     String course;
     if( allSections ) {
-      course = identifier + " " + courseNum.toString();
+      course = identifier + " " + courseNum;
     }
     else {
-      course = identifier + String.format("%d LEC %2d", courseNum, courseSection);
+      course = identifier + String.format(" %d LEC %02d", courseNum, courseSection);
     }
-    return String.format( "%s %s %2d", course, (isTutorial ? "TUT" : "LAB"), section );
+    return String.format( "%s %s %02d", course, (isTutorial ? "TUT" : "LAB"), section );
+  }
+
+  public boolean isForAllSections() {
+    return allSections;
   }
 
   public int hashCode() {
     return Objects.hash( this.identifier, this.courseNum, this.courseSection, this.allSections, this.section, this.isTutorial);
+  }
+
+  public int compareTo( Course c ) {
+    return (-1 * c.compareTo( this ));
+  }
+
+  public int compareTo( Lab l ) {
+    if( this.identifier.compareTo( l.identifier ) < 0 ) {
+      return -1;
+    }
+    else if( this.identifier.equals( l.identifier ) ) {
+      if( this.courseNum < l.courseNum ) {
+        return -1;
+      }
+      else if( this.courseNum == l.courseNum ) {
+        if( this.courseSection < l.courseSection ) {
+          return -1;
+        }
+        else if( this.courseSection == l.courseSection ) {
+          if( this.allSections ) {
+            if( !l.allSections ) {
+              return -1;
+            }
+            if( this.isTutorial ) {
+              if( !l.isTutorial ) {
+                return -1;
+              }
+              return 0;
+            }
+          }
+          else{
+            if( this.section < l.section ) {
+              return -1;
+            }
+            else if( this.section == l.section ) {
+              if( this.isTutorial ) {
+                if( !l.isTutorial ) {
+                  return -1;
+                }
+                return 0;
+              }
+              if( !l.isTutorial ){
+                return 0;
+              }
+            }
+          }
+        }
+      }
+    }
+    return 1;
   }
 }
 

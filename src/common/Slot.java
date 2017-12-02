@@ -1,6 +1,7 @@
 package common;
 import java.time.LocalTime;
 import java.util.Objects;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Representation of a time slot used to schedule courses. This class handles
@@ -12,13 +13,14 @@ import java.util.Objects;
  * @author Kevin
  * @version 1.00
  */
-public class Slot {
+public class Slot implements Comparable<Slot> {
   private static final long durationMWF = 60;
   private static final long durationTR  = 90;
   private static final long durationLabTR = 60;
   private static final long durationF   = 120;
   private static final LocalTime eveningTime = LocalTime.of( 18, 00 );
-  private static final specialSlot = new Slot();
+  private static final Slot specialSlot = new Slot();
+  private static final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern( "H:m" );
   private LocalTime startTime;
   private LocalTime endTime;
   private boolean isLab;
@@ -26,9 +28,9 @@ public class Slot {
   private int maxAssign;
 
   public enum Day{
-    MO ( "Mo" ),
-    TU ( "Tu" ),
-    FR ( "Fr" );
+    MO ( "MO" ),
+    TU ( "TU" ),
+    FR ( "FR" );
 
     private final String dayName;
     private Day( String dayName ) {
@@ -99,11 +101,11 @@ public class Slot {
    * @param isLab if the slot is a lab slot
    */
   public Slot( String day, String time, int maxAssign, int minAssign, boolean isLab ) {
-    this( Day.of( day ), LocalTime.parse( time ), maxAssign, minAssign, isLab );
+    this( Day.of( day ), LocalTime.parse( time, timeFormat ), maxAssign, minAssign, isLab );
   }
 
   private Slot() {
-    this.day = Day.TR;
+    this.day = Day.TU;
     this.startTime = LocalTime.of( 18, 00 );
     this.endTime = LocalTime.of( 19, 00 );
     this.isLab = false;
@@ -187,16 +189,10 @@ public class Slot {
    * @return The string representation of a slot, for example, "FR, 10:00"
    */
   public String toString() {
-    return String.format("%s, %s", day.toString(), startTime.toString());
-  }
-
-  public boolean equals( Slot other ) {
-    return ( this.startTime == other.startTime &&
-        this.day == other.day &&
-        this.isLab == other.isLab &&
-        this.maxAssign == other.maxAssign &&
-        this.minAssign == other.minAssign &&
-        this.endTime == other.endTime );
+    // FIXME: This would probably be error-prone in a general situation
+    if( maxAssign != 0 && minAssign != 0 )
+      return String.format("%s, %s, %d, %d", day.toString(), startTime.toString(), maxAssign, minAssign);
+    return String.format("%s, %s", day.toString(), startTime.toString() );
   }
 
   /**
@@ -215,6 +211,28 @@ public class Slot {
 
   public int hashCode() {
     return Objects.hash(day, startTime, endTime);
+  }
+
+  public int compareTo( Slot s ) {
+    if( this.day.compareTo(s.day) < 0 ) {
+      return -1;
+    }
+    else if( this.day.equals( s.day ) ) {
+      int startTimes = this.startTime.compareTo( s.startTime );
+      if( startTimes < 0 ) {
+        return -1;
+      }
+      else if( startTimes == 0 ) {
+        int endTimes = this.endTime.compareTo( s.endTime );
+        if( endTimes < 0 ) {
+          return -1;
+        }
+        else if( endTimes == 0 ) {
+          return 0;
+        }
+      }
+    }
+    return 1;
   }
 }
 

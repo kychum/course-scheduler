@@ -28,7 +28,7 @@ public class Assignment {
     this.assignments = assignments;
   }
 
-  private void verifyMax( Slot slot ) {
+  private void verifyMax( Slot slot ) throws HardConstraintViolationException {
     if( this.assignments.get( slot ).size() == slot.getMaxAssign() ) {
       throw new HardConstraintViolationException( "Assignment would cause slot to be over capacity." );
     }
@@ -40,7 +40,7 @@ public class Assignment {
     }
   }
 
-  private void verifyIncomp( Assignable course, ArrayList<Assignable> assigned ) {
+  private void verifyIncomp( Assignable course, ArrayList<Assignable> assigned ) throws HardConstraintViolationException {
     for( Assignable a : assigned ) {
       if( this.instance.getConstraints().checkIncomp( a, course ) ) {
         throw new HardConstraintViolationException( "Assignment would result in incompatibility violation." );

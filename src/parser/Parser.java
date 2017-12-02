@@ -32,7 +32,8 @@ public class Parser{
 	
 	public void Parser() {
     this.mode = Mode.NAME;
-		return;
+    log.setLevel( java.util.logging.Level.ALL );
+    log.info("Initializing parser");
 	}
 	
   // We can have a few different line formats
@@ -44,17 +45,17 @@ public class Parser{
 	// Courses:
 	// Labs:
 	public void parseLine( String line, Instance instance ) {
-    log.finest( String.format( "Parsing line [%s] in mode [%s]", line, this.mode.name() ) );
+    log.fine( String.format( "Parsing line [%s] in mode [%s]", line, this.mode.name() ) );
     switch( this.mode ) {
       case NAME:
         instance.setName( line );
         break;
       case CSLOT:
-        Slot courseSlot = parseSlot( line );
+        Slot courseSlot = parseSlot( line, false );
         instance.addCourseSlot( courseSlot );
         break;
       case LSLOT:
-        Slot labSlot = parseSlot( line );
+        Slot labSlot = parseSlot( line, true );
         instance.addLabSlot( labSlot );
         break;
       case COURSE:
@@ -74,7 +75,9 @@ public class Parser{
         }
         break;
       case UNWANTED:
-        String[] uwParts = tokenize( line, ",", 1 );
+        String[] uwParts = tokenize( line, ",", 2 );
+        log.info( uwParts[0] );
+        log.info( uwParts[1] );
         Assignable uwAssigns = parseAssignable( uwParts[0] );
         Slot uwSlot = parseSlot( uwParts[1] );
         instance.addUnwanted( uwAssigns, uwSlot );
@@ -95,10 +98,12 @@ public class Parser{
         }
         break;
       case PARTIAL:
-        String[] partialParts = tokenize( line, ",", 1 );
+        String[] partialParts = tokenize( line, ",", 2 );
+        log.fine( partialParts[0] );
+        log.fine( partialParts[1] );
         Assignable partialAssigns = parseAssignable( partialParts[0] );
         Slot partialSlot = parseSlot( partialParts[1] );
-        // TODO: add to instance
+        instance.addPartAssign( partialAssigns, partialSlot );
         break;
     }
 	}
@@ -116,21 +121,25 @@ public class Parser{
   }
 
   public Assignable parseAssignable( String str ) {
-    if( str.matches( "(LAB)|(TUT)" ) ) {
+    if( str.contains( "LAB" ) || str.contains( "TUT" ) ) {
       return parseLab(str);
     }
     return parseCourse(str);
   }
 
   public Slot parseSlot( String slot ) {
+    return parseSlot( slot, false );
+  }
+
+  public Slot parseSlot( String slot, boolean isLab ) {
     String[] parts = tokenize( slot, "," );
     Slot output;
     if( parts.length >= 4 ) {
-      output = new Slot( parts[0], parts[1], Integer.parseInt( parts[2] ), Integer.parseInt( parts[3] ) );
+      output = new Slot( parts[0], parts[1], Integer.parseInt( parts[2] ), Integer.parseInt( parts[3] ), isLab );
     }
     else {
       // Slot not used for assignment, just for comparing stuff
-      output = new Slot( parts[0], parts[1], 0, 0 );
+      output = new Slot( parts[0], parts[1], 0, 0, isLab );
     }
     return output;
   }
@@ -144,9 +153,9 @@ public class Parser{
   public Lab parseLab( String lab ) {
     // TODO: sanity check the input
     Lab output;
-    boolean isTutorial = lab.matches( "(?i)TUT" );
-    String[] parts = tokenize( lab, "(LEC)?((LAB)|(TUT))?" );
-    String[] id = tokenize( parts[0], " " );
+    boolean isTutorial = lab.contains( "TUT" );
+    String[] parts = tokenize( lab, "((LEC)|(LAB)|(TUT))" );
+    String[] id = tokenize( parts[0], "\\s+" );
     if( parts.length > 2 ) {
       output = new Lab( id[0], Integer.parseInt( id[1] ), Integer.parseInt( parts[1] ), Integer.parseInt( parts[2] ), isTutorial );
     }
@@ -191,7 +200,7 @@ public class Parser{
       return false;
     }
 
-    log.fine( String.format( "Changing mode to [%s].", this.mode.name() ) );
+    log.finest( String.format( "Changing mode to [%s].", this.mode.name() ) );
     return true;
   }
 
