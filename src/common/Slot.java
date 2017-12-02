@@ -209,6 +209,14 @@ public class Slot implements Comparable<Slot> {
       this.endTime.equals( other.endTime );
   }
 
+  @Override
+  public boolean equals( Object other ) {
+    if( other instanceof Slot )
+      return equals( (Slot)other );
+    return false;
+  }
+
+  @Override
   public int hashCode() {
     return Objects.hash(day, startTime, endTime);
   }

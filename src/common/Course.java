@@ -40,12 +40,20 @@ public class Course extends Assignable {
     return String.format("%s %02d LEC %02d", identifier, courseNum, section);
   }
 
+  @Override
+  public boolean equals( Object other ) {
+    if( other instanceof Course )
+      return equals((Course)other);
+    return false;
+  }
+
   public boolean equals( Course other ) {
     return this.identifier.equals( other.identifier ) &&
       this.courseNum == other.courseNum &&
       this.section == other.section;
   }
 
+  @Override
   public int hashCode() {
     return Objects.hash( this.identifier, this.courseNum, this.section );
   }

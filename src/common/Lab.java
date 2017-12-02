@@ -75,6 +75,14 @@ public class Lab extends Assignable {
       this.isTutorial == l.isTutorial;
   }
 
+  @Override
+  public boolean equals( Object a ) {
+    if( a instanceof Lab )
+      return equals( (Lab)a );
+    return false;
+  }
+
+  @Override
   public int hashCode() {
     return Objects.hash( this.identifier, this.courseNum, this.courseSection, this.allSections, this.section, this.isTutorial );
   }
@@ -92,10 +100,10 @@ public class Lab extends Assignable {
         return -1;
       }
       else if( this.courseNum == l.courseNum ) {
-        if( this.courseSection < l.courseSection ) {
+        if( this.section < l.section ) {
           return -1;
         }
-        else if( this.courseSection == l.courseSection ) {
+        else if( this.section == l.section ) {
           if( this.allSections ) {
             if( !l.allSections ) {
               return -1;
@@ -108,10 +116,10 @@ public class Lab extends Assignable {
             }
           }
           else{
-            if( this.section < l.section ) {
+            if( this.courseSection < l.courseSection ) {
               return -1;
             }
-            else if( this.section == l.section ) {
+            else if( this.courseSection == l.courseSection ) {
               if( this.isTutorial ) {
                 if( !l.isTutorial ) {
                   return -1;
