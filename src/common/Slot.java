@@ -18,6 +18,7 @@ public class Slot {
   private static final long durationLabTR = 60;
   private static final long durationF   = 120;
   private static final LocalTime eveningTime = LocalTime.of( 18, 00 );
+  private static final specialSlot = new Slot();
   private LocalTime startTime;
   private LocalTime endTime;
   private boolean isLab;
@@ -101,6 +102,15 @@ public class Slot {
     this( Day.of( day ), LocalTime.parse( time ), maxAssign, minAssign, isLab );
   }
 
+  private Slot() {
+    this.day = Day.TR;
+    this.startTime = LocalTime.of( 18, 00 );
+    this.endTime = LocalTime.of( 19, 00 );
+    this.isLab = false;
+    this.minAssign = 1;
+    this.maxAssign = 2;
+  }
+
   /**
    * Determines if two slots overlap in time by checking if the days coincide
    * as well as the time range.
@@ -165,6 +175,10 @@ public class Slot {
 
   public int getMinAssign() {
     return minAssign;
+  }
+
+  public static Slot getSpecialSlot() {
+    return specialSlot;
   }
 
   /**
