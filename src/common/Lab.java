@@ -66,6 +66,10 @@ public class Lab extends Assignable {
     return allSections;
   }
 
+  public int getCourseSection() {
+    return courseSection;
+  }
+
   public boolean equals( Lab l ){
     return this.identifier.equals( l.identifier ) &&
       this.courseNum == l.courseNum &&

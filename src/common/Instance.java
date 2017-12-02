@@ -94,7 +94,7 @@ public class Instance{
     for( Course c : courses ) {
       // forbid courses from being scheduled at the same time as their labs
       for( Lab l : labs ) {
-        if( c.getNumber() == l.getNumber() ) {
+        if( c.getCourseNum() == l.getCourseNum() ) {
           if( l.isForAllSections() || (l.getSection() == c.getSection()) ) {
             constraints.addIncomp( c, l );
           }
@@ -109,10 +109,10 @@ public class Instance{
       }
     }
 
-    if( courses.stream().anyMatch( c -> c.getNumber() == 313 ) ){
+    if( courses.stream().anyMatch( c -> c.getCourseNum() == 313 ) ){
       add813();
     }
-    if( courses.stream().anyMatch( c -> c.getNumber() == 413 ) ){
+    if( courses.stream().anyMatch( c -> c.getCourseNum() == 413 ) ){
       add913();
     }
 
@@ -135,9 +135,20 @@ public class Instance{
       throw new HardConstraintViolationException( "There are not enough slots for the number of labs given." );
     }
 
+    int maxEveningCourse = courseSlots.stream().filter( Slot::isEveningSlot ).mapToInt( s -> s.getMaxAssign() ).sum();
+    int maxEveningLab = labSlots.stream().filter( Slot::isEveningSlot ).mapToInt( s -> s.getMaxAssign() ).sum();
+    int eveningCourses = courses.stream().filter( c -> String.valueOf( c.getSection() ).charAt(0) == '9' ).mapToInt( s -> 1 ).sum();
+    int eveningLabs = labs.stream().filter( l -> String.valueOf( l.getCourseSection() ).charAt(0) == '9' ).mapToInt( s -> 1 ).sum();
+    if( maxEveningCourse < eveningCourses ) {
+      throw new HardConstraintViolationException( "There are not enough evening slots for the number of courses given." );
+    }
+    if( maxEveningLab < eveningLabs ) {
+      throw new HardConstraintViolationException( "There are not enough evening slots for the number of labs given." );
+    }
+
     // Check partial assignments
     partAssign.forEach( (course, slot) -> {
-      if( courses.contains( course ) && course.getNumber() != 813 && course.getNumber() != 913 ) {
+      if( courses.contains( course ) && course.getCourseNum() != 813 && course.getCourseNum() != 913 ) {
         if( !courseSlots.contains( slot ) ) {
           throw new HardConstraintViolationException( "Course is not assigned to a course slot" );
         }
@@ -157,7 +168,7 @@ public class Instance{
     Course cpsc813 = Course.getCPSC813();
     addPartAssign( cpsc813, Slot.getSpecialSlot() );
     courses.stream()
-      .filter( c -> c.getNumber() == 313 )
+      .filter( c -> c.getCourseNum() == 313 )
       .forEach( c -> {
         constraints.addIncomp( cpsc813, c );
         for( Assignable c2 : constraints.getIncomp( c ) ) {
@@ -170,7 +181,7 @@ public class Instance{
     Course cpsc913 = Course.getCPSC913();
     addPartAssign( cpsc913, Slot.getSpecialSlot() );
     courses.stream()
-      .filter( c -> c.getNumber() == 413 )
+      .filter( c -> c.getCourseNum() == 413 )
       .forEach( c -> {
         constraints.addIncomp( cpsc913, c );
         for( Assignable c2 : constraints.getIncomp( c ) ) {

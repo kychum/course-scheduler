@@ -23,7 +23,7 @@ public abstract class Assignable implements Comparable<Assignable> {
     return identifier;
   }
 
-  public int getNumber() {
+  public int getCourseNum() {
     return courseNum;
   }
 
