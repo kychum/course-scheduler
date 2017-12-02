@@ -190,7 +190,7 @@ public class Slot implements Comparable<Slot> {
    */
   public String toString() {
     // FIXME: This would probably be error-prone in a general situation
-    if( maxAssign != 0 && minAssign != 0 )
+    if( maxAssign != 0 || minAssign != 0 )
       return String.format("%s, %s, %d, %d", day.toString(), startTime.toString(), maxAssign, minAssign);
     return String.format("%s, %s", day.toString(), startTime.toString() );
   }

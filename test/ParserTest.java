@@ -18,7 +18,7 @@ class ParserTest{
   }
 
   @ParameterizedTest
-  @ValueSource( strings = { "example1", "gehtnicht1.txt", "gehtnight2.txt", "gehtnicht3.txt",
+  @ValueSource( strings = { "example1", "gehtnicht1.txt", "gehtnicht2.txt", "gehtnicht3.txt",
     "gehtnicht4.txt", "gehtnicht5.txt", "gehtnicht6.txt", "gehtnicht7.txt", "gehtnicht8.txt",
     "gehtnicht9.txt", "gehtnicht10.txt", "gehtnicht11.txt", "gehtnicht12.txt", "minnumber.txt",
     "pairing.txt", "parallelpen.txt", "prefexamp.txt", "deptinst1.txt", "deptinst2.txt"} )
@@ -36,7 +36,7 @@ class ParserTest{
     String[] expectedSplit = expected.split("\n");
     String[] resultSplit = i.toString().split("\n");
     for( int line = 0; line < expectedSplit.length && line < resultSplit.length; ++line ) {
-      assertEquals( expectedSplit[line], resultSplit[line], "on line " + line );
+      assertEquals( expectedSplit[line], resultSplit[line], "on line " + (line+1) );
     }
     if( expectedSplit.length != resultSplit.length ) {
       assertEquals( expectedSplit.length, resultSplit.length, "Result lengths do not match" );

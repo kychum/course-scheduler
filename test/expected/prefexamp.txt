@@ -1,0 +1,36 @@
+Name:
+prefexamp
+
+Course slots:
+MO, 08:00, 1, 0
+MO, 09:00, 1, 0
+MO, 10:00, 1, 0
+
+Lab slots:
+
+Courses:
+CPSC 101 LEC 01
+CPSC 102 LEC 01
+CPSC 103 LEC 01
+
+Labs:
+
+Not compatible:
+
+Unwanted:
+
+Preferences:
+MO, 08:00, CPSC 101 LEC 01, 10
+MO, 08:00, CPSC 102 LEC 01, 10
+MO, 08:00, CPSC 103 LEC 01, 5
+MO, 09:00, CPSC 101 LEC 01, 5
+MO, 09:00, CPSC 102 LEC 01, 8
+MO, 09:00, CPSC 103 LEC 01, 8
+MO, 10:00, CPSC 101 LEC 01, 1
+MO, 10:00, CPSC 102 LEC 01, 2
+MO, 10:00, CPSC 103 LEC 01, 1
+
+Pair:
+
+Partial assignments:
+

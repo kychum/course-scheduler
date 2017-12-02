@@ -66,8 +66,17 @@ public class Lab extends Assignable {
     return allSections;
   }
 
+  public boolean equals( Lab l ){
+    return this.identifier.equals( l.identifier ) &&
+      this.courseNum == l.courseNum &&
+      this.courseSection == l.courseSection &&
+      this.allSections == l.allSections &&
+      this.section == l.section &&
+      this.isTutorial == l.isTutorial;
+  }
+
   public int hashCode() {
-    return Objects.hash( this.identifier, this.courseNum, this.courseSection, this.allSections, this.section, this.isTutorial);
+    return Objects.hash( this.identifier, this.courseNum, this.courseSection, this.allSections, this.section, this.isTutorial );
   }
 
   public int compareTo( Course c ) {
