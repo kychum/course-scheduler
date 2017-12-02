@@ -8,6 +8,15 @@ package common;
  */
 public abstract class Assignable {
   protected String identifier;
+  protected int courseNum;
   protected int section;
+
+  public boolean isEveningClass() {
+    return section == 9;
+  }
+
+  public boolean is500Level() {
+    return courseNum >= 500 && courseNum < 600;
+  }
 }
 

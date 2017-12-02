@@ -137,7 +137,8 @@ public class Parser{
 
   public Course parseCourse( String course ) {
     String[] parts = tokenize( course, "LEC" );
-    return new Course( parts[0], Integer.parseInt( parts[1] ) );
+    String[] id = tokenize( parts[0], " " );
+    return new Course( id[0], Integer.parseInt( id[1] ), Integer.parseInt( parts[1] ) );
   }
 
   public Lab parseLab( String lab ) {
@@ -145,11 +146,12 @@ public class Parser{
     Lab output;
     boolean isTutorial = lab.matches( "(?i)TUT" );
     String[] parts = tokenize( lab, "(LEC)?((LAB)|(TUT))?" );
+    String[] id = tokenize( parts[0], " " );
     if( parts.length > 2 ) {
-      output = new Lab( parts[0], Integer.parseInt( parts[1] ), Integer.parseInt( parts[2] ), isTutorial );
+      output = new Lab( id[0], Integer.parseInt( id[1] ), Integer.parseInt( parts[1] ), Integer.parseInt( parts[2] ), isTutorial );
     }
     else {
-      output = new Lab( parts[0], Integer.parseInt( parts[1] ), isTutorial );
+      output = new Lab( id[0], Integer.parseInt( id[1] ), Integer.parseInt( parts[1] ), isTutorial );
     }
     return output;
   }

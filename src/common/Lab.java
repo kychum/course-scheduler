@@ -21,8 +21,9 @@ public class Lab extends Assignable {
    * @param section the lab/tutorial's section number
    * @param isTutorial determines if the lab should be classified as a tutorial
    */
-  public Lab( String identifier, int courseSection, int section, boolean isTutorial ) {
+  public Lab( String identifier, int courseNum, int courseSection, int section, boolean isTutorial ) {
     this.identifier = identifier;
+    this.courseNum = courseNum;
     this.courseSection = courseSection;
     this.allSections = false;
     this.section = section;
@@ -52,16 +53,16 @@ public class Lab extends Assignable {
   public String toString() {
     String course;
     if( allSections ) {
-      course = identifier;
+      course = identifier + " " + courseNum.toString();
     }
     else {
-      course = identifier + String.format("LEC %2d", courseSection);
+      course = identifier + String.format("%d LEC %2d", courseNum, courseSection);
     }
     return String.format( "%s %s %2d", course, (isTutorial ? "TUT" : "LAB"), section );
   }
 
   public int hashCode() {
-    return Objects.hash( this.identifier, this.courseSection, this.allSections, this.section, this.isTutorial);
+    return Objects.hash( this.identifier, this.courseNum, this.courseSection, this.allSections, this.section, this.isTutorial);
   }
 }
 

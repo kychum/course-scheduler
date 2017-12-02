@@ -14,8 +14,9 @@ public class Course extends Assignable {
    * @param identifier the course identifier, e.g. "CPSC 123"
    * @param section the course section
    */
-  public Course( String identifier, int section ) {
+  public Course( String identifier, int courseNum, int section ) {
     this.identifier = identifier;
+    this.courseNum = courseNum;
     this.section = section;
   }
 
@@ -25,11 +26,11 @@ public class Course extends Assignable {
    * @return This course as a string, e.g. "CPSC 433 LEC 01"
    */
   public String toString() {
-    return String.format("%s LEC %2d", identifier, section);
+    return String.format("%s %d LEC %2d", identifier, courseNum, section);
   }
 
   public int hashCode() {
-    return Objects.hash( this.identifier, this.section );
+    return Objects.hash( this.identifier, this.courseNum, this.section );
   }
 }
 
