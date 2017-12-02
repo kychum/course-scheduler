@@ -37,6 +37,7 @@ public abstract class Assignable implements Comparable<Assignable> {
     }
     return compareTo( (Lab)a );
   }
+
   abstract public int compareTo( Course c );
   abstract public int compareTo( Lab l );
 }

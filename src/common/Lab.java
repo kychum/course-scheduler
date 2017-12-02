@@ -88,7 +88,21 @@ public class Lab extends Assignable {
   }
 
   public int compareTo( Course c ) {
-    return (-1 * c.compareTo( this ));
+    int ci = this.identifier.compareTo( c.identifier );
+    if( ci < 0 ) {
+      return -1;
+    }
+    else if( ci == 0 ) {
+      if( this.courseNum < c.courseNum ) {
+        return -1;
+      }
+      else if( this.courseNum == c.courseNum ) {
+        if( this.courseSection < c.section & !allSections) {
+          return -1;
+        }
+      }
+    }
+    return 1;
   }
 
   public int compareTo( Lab l ) {

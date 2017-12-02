@@ -207,6 +207,7 @@ public class Instance{
       .sorted()
       .map( a1 -> incomp.get( a1 ).stream()
           .filter( a2 -> a1.compareTo( a2 ) < 0 )
+          .sorted()
           .map( a2 -> a1.toString() + ", " + a2.toString() + "\n" )
           .reduce( "", (s1, s2) -> s1 + s2 ) )
       .forEach( s -> out.append( s ) );
@@ -237,6 +238,7 @@ public class Instance{
       .forEach( a1 -> {
         pair.get(a1).stream()
           .filter( a2 -> a1.compareTo( a2 ) < 0 )
+          .sorted()
           .forEach( a2 -> out.append( a1.toString() + ", " + a2.toString() + "\n" ) );
       });
     out.append("\n");
