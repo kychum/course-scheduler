@@ -18,7 +18,7 @@ class ParserTest{
   }
 
   @ParameterizedTest
-  @ValueSource( strings = { "test/input/example1" } )
+  @ValueSource( strings = { "test/input/example1", "test/input/gehtnicht1.txt" } )
   void parseExample(String file) {
     String expectedOutputFile = file.replace("input", "expected");
     String expected = "";
@@ -29,8 +29,14 @@ class ParserTest{
       fail( "Unable to read the expected output file! (" + expectedOutputFile + ")" );
     }
     Instance i = parser.parseFile( file );
-    System.out.println( i.toString() );
-    assertEquals( expected, i.toString() );
+    String[] expectedSplit = expected.split("\n");
+    String[] resultSplit = i.toString().split("\n");
+    for( int line = 0; line < expectedSplit.length && line < resultSplit.length; ++line ) {
+      assertEquals( expectedSplit[line], resultSplit[line], "on line " + line );
+    }
+    if( expectedSplit.length != resultSplit.length ) {
+      assertEquals( expectedSplit.length, resultSplit.length, "Result lengths do not match" );
+    }
   }
 }
 

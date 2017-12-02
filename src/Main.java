@@ -11,6 +11,7 @@ public class Main {
     Logger.getLogger("Parser").setLevel(Level.ALL);
     Logger.getLogger("Parser").fine("test");
     Parser p = new Parser();
-    p.parseFile( "test/input/example1" );
+    Instance i = p.parseFile( "test/input/example1" );
+    System.out.println(i.toString());
   }
 }

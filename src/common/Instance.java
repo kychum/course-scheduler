@@ -177,11 +177,11 @@ public class Instance{
     out.append("Name:\n");
     out.append(name + "\n\n");
 
-    out.append("Course Slots:\n");
+    out.append("Course slots:\n");
     courseSlots.stream().sorted().forEach( s -> out.append( s.toString() + "\n" ) );
     out.append("\n");
 
-    out.append("Lab Slots:\n");
+    out.append("Lab slots:\n");
     labSlots.stream().sorted().forEach( s -> out.append( s.toString() + "\n" ) );
     out.append("\n");
 
