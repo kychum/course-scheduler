@@ -32,8 +32,6 @@ public class Parser{
 	
 	public void Parser() {
     this.mode = Mode.NAME;
-    log.setLevel( java.util.logging.Level.ALL );
-    log.info("Initializing parser");
 	}
 	
   // We can have a few different line formats
@@ -76,8 +74,6 @@ public class Parser{
         break;
       case UNWANTED:
         String[] uwParts = tokenize( line, ",", 2 );
-        log.info( uwParts[0] );
-        log.info( uwParts[1] );
         Assignable uwAssigns = parseAssignable( uwParts[0] );
         Slot uwSlot = parseSlot( uwParts[1], uwParts[0].contains("LAB") || uwParts[0].contains("TUT") );
         instance.addUnwanted( uwAssigns, uwSlot );

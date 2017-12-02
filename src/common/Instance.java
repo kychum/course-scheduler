@@ -81,8 +81,6 @@ public class Instance{
   }
 
   public boolean addPreference( Assignable assn, Slot slot, int value ) {
-    System.out.println( (this.courseSlots.stream().anyMatch( s -> s.equals(slot) )));
-    System.out.println( (this.labSlots.stream().anyMatch( s -> s.equals(slot) )));
     return ((this.courseSlots.stream().anyMatch( s -> s.equals(slot) ) || this.labSlots.stream().anyMatch( s -> s.equals(slot) )) &&
         this.preferences.add( new Preference( assn, slot, value ) ));
   }
