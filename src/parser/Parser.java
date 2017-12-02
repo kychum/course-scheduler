@@ -79,15 +79,18 @@ public class Parser{
         log.info( uwParts[0] );
         log.info( uwParts[1] );
         Assignable uwAssigns = parseAssignable( uwParts[0] );
-        Slot uwSlot = parseSlot( uwParts[1] );
+        Slot uwSlot = parseSlot( uwParts[1], uwParts[0].contains("LAB") || uwParts[0].contains("TUT") );
         instance.addUnwanted( uwAssigns, uwSlot );
         break;
       case PREF:
         String[] prefParts = tokenize( line, "," );
-        Slot prefSlot = parseSlot( String.join( ",", prefParts[0], prefParts[1] ) );
         Assignable prefAssigns = parseAssignable( prefParts[2] );
+        boolean prefIsLab = prefParts[2].contains("LAB") || prefParts[2].contains("TUT");
+        Slot prefSlot = parseSlot( String.join( ",", prefParts[0], prefParts[1] ), prefIsLab );
         int prefValue = Integer.parseInt( prefParts[3] );
-        // TODO: add to instance
+        if( !instance.addPreference( prefAssigns, prefSlot, prefValue ) ){
+          log.warning( String.format( "Ignoring preference [%d] for class [%s] to slot [%s]. Is the slot a valid slot?", prefValue, prefAssigns.toString(), prefSlot.toString() ));
+        }
         break;
       case PAIR:
         Assignable[] pairAssigns = Arrays.stream( tokenize( line, "," ) )
@@ -102,7 +105,7 @@ public class Parser{
         log.fine( partialParts[0] );
         log.fine( partialParts[1] );
         Assignable partialAssigns = parseAssignable( partialParts[0] );
-        Slot partialSlot = parseSlot( partialParts[1] );
+        Slot partialSlot = parseSlot( partialParts[1], partialParts[0].contains("LAB") || partialParts[0].contains("TUT") );
         instance.addPartAssign( partialAssigns, partialSlot );
         break;
     }

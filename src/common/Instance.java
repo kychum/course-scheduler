@@ -3,6 +3,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class Instance{
   private String name;
@@ -12,6 +13,7 @@ public class Instance{
   private HashSet<Slot> labSlots;
   private Constraints constraints;
   private HashMap<Assignable, HashSet<Slot>> partAssign;
+  private HashSet<Preference> preferences;
 
   public Instance () {
     courses = new HashSet<Course>();
@@ -20,6 +22,7 @@ public class Instance{
     labSlots = new HashSet<Slot>();
     constraints = new Constraints();
     partAssign = new HashMap<>();
+    preferences = new HashSet<Preference>();
   }
 
   public void setName( String name ) {
@@ -75,6 +78,13 @@ public class Instance{
       this.partAssign.put( assn, new HashSet<Slot>() );
     }
     return this.partAssign.get( assn ).add( slot );
+  }
+
+  public boolean addPreference( Assignable assn, Slot slot, int value ) {
+    System.out.println( (this.courseSlots.stream().anyMatch( s -> s.equals(slot) )));
+    System.out.println( (this.labSlots.stream().anyMatch( s -> s.equals(slot) )));
+    return ((this.courseSlots.stream().anyMatch( s -> s.equals(slot) ) || this.labSlots.stream().anyMatch( s -> s.equals(slot) )) &&
+        this.preferences.add( new Preference( assn, slot, value ) ));
   }
 
   /**
@@ -217,6 +227,9 @@ public class Instance{
     out.append("\n");
 
     out.append("Preferences:\n");
+    preferences.stream()
+      .sorted()
+      .forEach( p -> out.append( String.format("%s, %s, %d\n", p.slot.toString(), p.course.toString(), p.value ) ) );
     out.append("\n");
 
     out.append("Pair:\n");
@@ -242,5 +255,49 @@ public class Instance{
 
     return out.toString();
   }
-}
 
+  private class Preference implements Comparable<Preference> {
+    Assignable course;
+    Slot slot;
+    int value;
+
+    public Preference( Assignable a, Slot s, int v ) {
+      course = a;
+      slot = s;
+      value = v;
+    }
+
+    public boolean equals( Preference other ){
+      return course.equals( other.course ) &&
+        slot.equals( other.slot ) &&
+        value == other.value;
+    }
+
+    public int hashCode() {
+      return Objects.hash( course, slot, value );
+    }
+
+    public int compareTo( Preference other ) {
+      int c = course.compareTo( other.course );
+      int s = slot.compareTo( other.slot );
+      int v = value - other.value;
+      if( s < 0 ){
+        return -1;
+      }
+      if( s == 0 ) {
+        if( c < 0 ) {
+          return -1;
+        }
+        if( c == 0 ) {
+          if( v < 0 ) {
+            return -1;
+          }
+          if( v == 0 ) {
+            return 0;
+          }
+        }
+      }
+      return 1;
+    }
+  }
+}

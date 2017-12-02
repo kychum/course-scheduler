@@ -18,8 +18,12 @@ class ParserTest{
   }
 
   @ParameterizedTest
-  @ValueSource( strings = { "test/input/example1", "test/input/gehtnicht1.txt" } )
-  void parseExample(String file) {
+  @ValueSource( strings = { "example1", "gehtnicht1.txt", "gehtnight2.txt", "gehtnicht3.txt",
+    "gehtnicht4.txt", "gehtnicht5.txt", "gehtnicht6.txt", "gehtnicht7.txt", "gehtnicht8.txt",
+    "gehtnicht9.txt", "gehtnicht10.txt", "gehtnicht11.txt", "gehtnicht12.txt", "minnumber.txt",
+    "pairing.txt", "parallelpen.txt", "prefexamp.txt", "deptinst1.txt", "deptinst2.txt"} )
+  void parseExample(String filename) {
+    String file = "test/input/" + filename;
     String expectedOutputFile = file.replace("input", "expected");
     String expected = "";
     try{ 
