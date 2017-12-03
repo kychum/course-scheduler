@@ -26,7 +26,7 @@ Assignment assign;
 	public void makeSchedule() {
 		
 		Instance inst = parseFile();
-		assign = new Assignment( inst );
+		//assign = new Assignment();
 		rand = new Random(0);
 		initialize();
 		//hillClimb();
@@ -40,10 +40,10 @@ Assignment assign;
 	private void initialize() {
 		
 		int courseSlotSize = inst.getCourseSlots().size();
-		for (Course c : inst.getCourses()) {
+		for (Course s : inst.getCourses()) {
 			int nextSlotIndex = rand.nextInt() % courseSlotSize;
 			Slot courseSlot = inst.getCourseSlots().get(nextSlotIndex);
-			if (maintainsHardConstraints(courseSlot, c)) {
+			if (maintainsHardConstraints(courseSlot, s)) {
 				
 				
 				// TODO assign course to slot
@@ -73,28 +73,6 @@ Assignment assign;
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	
-	
-	public static void main(String[] args) {
-		//Scanner scan = new Scanner(System.in);
-		//System.out.print("Enter the name of your input file: ");
-		//String filename = scan.nextLine();
-		String filename = "gehtnicht4.txt";
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(filename));
-			String line;
-			while((line = br.readLine()) != null) {
-				if (line.equals("Name:")) {
-					System.out.println(line);
-				}
-			}
-		} catch (java.io.FileNotFoundException e) {
-			System.out.println("File " + filename + " does not exist!");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-	}
+
 
 }
