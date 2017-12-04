@@ -184,12 +184,13 @@ public class Instance{
     } );
 
     // Check preferences
-    preferences.stream()
+    Preference[] ignoredPreferences = preferences.stream()
       .filter( p -> constraints.checkUnwanted( p.course, p.slot ) )
-      .forEach( p -> {
-        log.warning( "Ignoring preference for [%s] to slot [%s] due to the assignment being unwanted" );
-        preferences.remove( p );
-      });
+      .toArray( Preference[]::new ); 
+    for( Preference p : ignoredPreferences ) {
+      log.warning( "Ignoring preference for [%s] to slot [%s] due to the assignment being unwanted" );
+      preferences.remove( p );
+    }
   }
 
   private void add813() {
