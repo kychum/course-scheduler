@@ -49,7 +49,7 @@ public class Main {
       // for( int i = 0; i < maxRuns; ++i ) {
       //   Assignment assign = s.makeSchedule(); // Or otherwise get assignment from scheduler
       //   Optimizer optimizer = new Optimizer( assign );
-      //   Assignment optimized = optimizer.optimize( assign );
+      //   Assignment optimized = optimizer.optimize( assign, minfilled, pref, pair, secdiff );
       //   if( optimized.eval() < best.eval() ) {
       //     best = optimized;
       //   }
