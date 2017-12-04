@@ -125,7 +125,6 @@ public class Optimizer{
             min.remove(minViolator);
             resolved = false;
           } else {
-            log.info("resolved min");
           }
           break;
         default:
@@ -287,18 +286,14 @@ public class Optimizer{
   }
 
   private boolean resolveMin( Slot slot ) {
-    log.info( "Attempting to resolve min violation on slot [" + slot.toString() + "]" );
     if( slot == null ) return false;
     int bestDecrease = 0;
     Tuple<Operation, Tuple<Assignable, Slot>> bestMove = new Tuple<Operation, Tuple<Assignable,Slot>>( Operation.NONE, null );
     for( Slot s : assignment.getAssignmentsBySlot().keySet() ) {
       if( !s.equals( slot ) ) {
-        log.info( "Iterating over slots" );
         for( Assignable a : assignment.getAssignmentsBySlot().get( s ) ) {
-          log.info( "Iterating over assignables" );
           int stage = assignment.stageAction( a, slot );
           if( stage > bestDecrease ) {
-            log.info( "Updating best move" );
             bestDecrease = stage;
             bestMove = new Tuple<Operation,Tuple<Assignable,Slot>>( Operation.MOVE, new Tuple<Assignable,Slot>( a, null ) );
           }
@@ -308,7 +303,6 @@ public class Optimizer{
 
     if( bestDecrease > 0 ) {
       if( bestMove.first == Operation.MOVE ) {
-        log.info( "Performing best move" );
         assignment.move( bestMove.second.first, slot );
         return true;
       }

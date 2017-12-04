@@ -175,7 +175,7 @@ class AssignmentTest{
   void testOptimal() {
     Instance i = new Instance();
     Slot s = new Slot( "MO", "14:00", 1, 1, false );
-    Slot s2 = new Slot( "MO", "17:00", 1, 1, false );
+    Slot s2 = new Slot( "MO", "17:00", 1, 0, false );
     Course c = new Course( "CPSC", 100, 1 );
     i.addCourseSlot( s );
     i.addCourseSlot( s2 );
@@ -183,6 +183,9 @@ class AssignmentTest{
     Assignment a = new Assignment( i );
     a.add( c, s );
     assertEquals( 0, a.eval() );
-    assertNull( a.getMinViolations() );
+    assertTrue( a.getMinViolations().isEmpty() );
+    a.move( c, s2 );
+    assertEquals( 10, a.eval() );
+    assertFalse( a.getMinViolations().isEmpty() );
   }
 }
