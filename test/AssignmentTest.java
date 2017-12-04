@@ -169,4 +169,20 @@ class AssignmentTest{
     assertTrue( min.contains( s2 ), "The second course slot should be in violation" );
     assertTrue( min.contains( s4 ), "The second lab slot should be in violation" );
   }
+
+  @Test
+  @DisplayName( "Optimal instance should have no violations" )
+  void testOptimal() {
+    Instance i = new Instance();
+    Slot s = new Slot( "MO", "14:00", 1, 1, false );
+    Slot s2 = new Slot( "MO", "17:00", 1, 1, false );
+    Course c = new Course( "CPSC", 100, 1 );
+    i.addCourseSlot( s );
+    i.addCourseSlot( s2 );
+    i.addCourse( c );
+    Assignment a = new Assignment( i );
+    a.add( c, s );
+    assertEquals( 0, a.eval() );
+    assertNull( a.getMinViolations() );
+  }
 }

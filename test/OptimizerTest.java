@@ -50,6 +50,7 @@ class OptimizerTest {
     a.add( l2, s3 );
     Optimizer o = new Optimizer( a );
     o.optimize();
+    System.out.println( o.getAssignment().toString() );
     assertEquals( 1, o.getAssignment().getAssignmentsBySlot().get( s2 ).size(), "A course should have been assigned to the courseslot violating coursemin" );
     assertEquals( 1, o.getAssignment().getAssignmentsBySlot().get( s4 ).size(), "A lab should have been assigned to the labslot violating labmin" );
   }

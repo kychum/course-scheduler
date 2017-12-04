@@ -13,11 +13,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.HashSet;
+import java.util.logging.Logger;
 import java.util.Map;
 
 public class Optimizer{
   private Assignment assignment;
   private Instance instance;
+  private static Logger log = Logger.getLogger("Optimizer");
 
   private int w_minfilled;
   private int w_pref;
@@ -53,6 +55,8 @@ public class Optimizer{
   // Note that the current solution lacks randomness
   public void optimize() {
     if( assignment.eval() == 0 ) return;
+
+    log.info( "Beginning optimization" );
     HashSet<Slot> min = assignment.getMinViolations();
     HashSet<Tuple<Assignable, Assignable>> pair = assignment.getPairViolations();
     HashMap<Tuple<Assignable, Slot>, Integer> pref = assignment.getPrefViolations();
@@ -63,7 +67,7 @@ public class Optimizer{
       .map( e -> e.getKey() )
       .collect( Collectors.toList() );
 
-    while( !min.isEmpty() && !pair.isEmpty() && !pref.isEmpty() && !secdiff.isEmpty() ) {
+    while( !min.isEmpty() || !pair.isEmpty() || !pref.isEmpty() || !secdiff.isEmpty() ) {
       // Determine which course(s) would give the greatest decrease in eval
       ConstraintType biggest = ConstraintType.NONE;
       if( sortedPref.size() > 0 ) {
@@ -88,6 +92,7 @@ public class Optimizer{
         if( w_secdiff == maxVal && secdiff.size() > 0 )
           biggest = ConstraintType.SECTION;
       }
+      log.info("Determined biggest violator is of type" + biggest.toString());
 
       // Try to fix the violation
       boolean resolved = true;
@@ -116,9 +121,11 @@ public class Optimizer{
           break;
         case MIN:
           Slot minViolator = min.stream().findAny().orElse( null );
-          if( !resolveMin( minViolator ) ){
+          if( minViolator != null && !resolveMin( minViolator ) ){
             min.remove(minViolator);
             resolved = false;
+          } else {
+            log.info("resolved min");
           }
           break;
         default:
@@ -126,6 +133,7 @@ public class Optimizer{
       }
 
       if( resolved ) {
+        log.info("updating violations");
         min = assignment.getMinViolations();
         pair = assignment.getPairViolations();
         pref = assignment.getPrefViolations();
@@ -279,14 +287,18 @@ public class Optimizer{
   }
 
   private boolean resolveMin( Slot slot ) {
+    log.info( "Attempting to resolve min violation on slot [" + slot.toString() + "]" );
     if( slot == null ) return false;
     int bestDecrease = 0;
-    Tuple<Operation, Tuple<Assignable, Slot>> bestMove = new Tuple<Operation, Tuple<Assignable,Slot>>( Operation.NONE, null);
+    Tuple<Operation, Tuple<Assignable, Slot>> bestMove = new Tuple<Operation, Tuple<Assignable,Slot>>( Operation.NONE, null );
     for( Slot s : assignment.getAssignmentsBySlot().keySet() ) {
       if( !s.equals( slot ) ) {
+        log.info( "Iterating over slots" );
         for( Assignable a : assignment.getAssignmentsBySlot().get( s ) ) {
+          log.info( "Iterating over assignables" );
           int stage = assignment.stageAction( a, slot );
           if( stage > bestDecrease ) {
+            log.info( "Updating best move" );
             bestDecrease = stage;
             bestMove = new Tuple<Operation,Tuple<Assignable,Slot>>( Operation.MOVE, new Tuple<Assignable,Slot>( a, null ) );
           }
@@ -296,6 +308,7 @@ public class Optimizer{
 
     if( bestDecrease > 0 ) {
       if( bestMove.first == Operation.MOVE ) {
+        log.info( "Performing best move" );
         assignment.move( bestMove.second.first, slot );
         return true;
       }

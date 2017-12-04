@@ -15,14 +15,24 @@ public class Assignment {
   private int[] weights;
 
   public Assignment(Assignment other) {
+    log.info( "copy constructor" );
+    if(other.courseAssignments == null);
     this.instance = other.instance;
-    other.courseAssignments.forEach( (a, s) -> courseAssignments.put( a, s ) );
+    log.info( "copied instance" );
+    courseAssignments = new TreeMap<>();
+    if( other.courseAssignments != null ) {
+      other.courseAssignments.forEach( (a, s) -> this.courseAssignments.put( a, s ) );
+    }
+    log.info( "copied courseassign" );
+    assignments = new TreeMap<>();
     other.assignments.forEach( (s, hs) -> {
       HashSet<Assignable> cloned = new HashSet<>();
       hs.forEach( a -> cloned.add(a));
       assignments.put( s, cloned );
     });
+    log.info( "copied assigns" );
     this.weights = other.weights;
+    log.info( "copied weights" );
   }
 
   public void setWeights(int min, int pref, int pair, int sec){
@@ -211,12 +221,12 @@ public class Assignment {
 
   public String toString() {
     StringBuilder out = new StringBuilder();
-    out.append( "Eval-value: " + "TO BE IMPLEMENTED" );
+    out.append( "Eval-value: " + eval() + "\n" );
     int longest = courseAssignments.keySet().stream()
       .mapToInt( a -> a.toString().length() )
       .max().orElse( 0 );
     courseAssignments.forEach( (assn, slot) -> {
-      out.append( String.format( "%" + longest + "s : %s", assn.toString(), slot.toString() ) );
+      out.append( String.format( "%-" + longest + "s : %s\n", assn.toString(), slot.toString() ) );
     } );
     return out.toString();
   }
@@ -259,6 +269,8 @@ public class Assignment {
   public HashSet<Tuple<Assignable, Assignable>> getSectionViolations() {
     HashSet<Tuple<Assignable, Assignable>> out = new HashSet<>();
     for( Course c : instance.getCourses()) {
+      log.info("testing section violation on " + c.toString());
+      log.info("note, slot is " + courseAssignments.get( c ) );
       assignments.get( courseAssignments.get( c ) ).stream()
         .filter( c2 -> c2.getCourseNum() == c.getCourseNum() &&
             c2.getSection() != c.getSection() )
@@ -274,9 +286,12 @@ public class Assignment {
   // Get the difference in eval for a swap
   // Remark: this will probably be slow.
   public int stageAction( Assignable a1, Assignable a2 ) {
+    log.info( "Entering stage action" );
     Assignment clone = clone();
+    log.info( "Clone performed." );
     try{
       clone.swap(a1, a2);
+      log.info( "swapped clone" );
       return eval() - clone.eval();
     }
     catch( HardConstraintViolationException e ) {
@@ -288,9 +303,12 @@ public class Assignment {
   // Get the difference in eval for a move
   // Remark: this will probably be slow.
   public int stageAction( Assignable assign, Slot slot ) {
+    log.info( "Entering stage action" );
     Assignment a2 = clone();
+    log.info( "Clone performed." );
     try{
       a2.move( assign, slot );
+      log.info( "swapped clone" );
       return eval() - a2.eval();
     }
     catch( HardConstraintViolationException e ) {
@@ -304,28 +322,41 @@ public class Assignment {
   }
 
   public int eval( int w_minfilled, int w_pref, int w_pair, int w_secdiff ) {
+    log.info("in eval (w/weights)");
     int minfilled = evalMinFilled();
+    log.info("got min");
     int pref = evalPref();
+    log.info("got pref");
     int pair = evalPair();
+    log.info("got pair");
     int secdiff = evalSecDiff();
+    log.info("got all vals");
 
     return (minfilled * w_minfilled) + (pref * w_pref) + (pair * w_pair) + (secdiff * w_secdiff);
   }
 
   public int evalMinFilled() {
-    return getMinViolations().size();
+    if( getMinViolations() != null )
+      return getMinViolations().size();
+    return 0;
   }
 
   public int evalPref() {
-    return getPrefViolations().values().stream().mapToInt( p -> p ).sum();
+    if( getPrefViolations() != null )
+      return getPrefViolations().values().stream().mapToInt( p -> p ).sum();
+    return 0;
   }
 
   public int evalPair() {
-    return getPairViolations().size();
+    if( getPairViolations() != null )
+      return getPairViolations().size();
+    return 0;
   }
 
   public int evalSecDiff() {
-    return getSectionViolations().size();
+    if( getSectionViolations() != null )
+      return getSectionViolations().size();
+    return 0;
   }
 
 }
