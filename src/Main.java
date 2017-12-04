@@ -46,7 +46,6 @@ public class Main {
       i.finalizeInstance();
       System.out.println(i.toString());
       Scheduler s = new Scheduler(i);
-      s.makeSchedule();
       // The general idea:
       // Assignment best = null;
       // for( int i = 0; i < maxRuns; ++i ) {

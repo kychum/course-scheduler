@@ -32,10 +32,11 @@ Constraints constraints;
 		this.inst = i;
 		assign = new Assignment(i);
 		this.constraints = this.inst.getConstraints();
-    System.out.println( assign.toString() );
+		makeSchedule();
+		System.out.println( assign.toString() );
 		Optimizer o = new Optimizer(assign);
 		o.optimize();
-    System.out.println( o.getAssignment().toString() );
+		System.out.println( o.getAssignment().toString() );
 	}
 
 
