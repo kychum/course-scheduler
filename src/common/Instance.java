@@ -141,6 +141,17 @@ public class Instance{
       }
     }
 
+    // Check if not exact match and output an error
+    for( Preference p : preferences ) {
+      Assignable a =  courses.stream().filter( a1 -> a1.hashCode() == p.course.hashCode() ).findFirst().orElse(null);
+      if ( a == null ){
+        a = labs.stream().filter( a1 -> a1.hashCode() == p.course.hashCode() ).findFirst().orElse(null);
+      }
+      if( a != null && !p.course.equals(a) ){
+        log.warning(String.format("Course definition [%s] in preferences is not exactly the same as expected [%s], but will treat them as the same", p.course, a));
+      }
+    }
+
     if( courses.stream().anyMatch( c -> c.getCourseNum() == 313 ) ) {
       add813();
     }

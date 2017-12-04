@@ -92,7 +92,7 @@ public class Lab extends Assignable {
 
   @Override
   public int hashCode() {
-    return Objects.hash( this.identifier, this.courseNum, this.section, this.allSections, this.labSection, this.isTutorial );
+    return Objects.hash( this.identifier, this.courseNum, this.section, this.allSections, this.labSection );
   }
 
   public int compareTo( Course c ) {
@@ -130,27 +130,14 @@ public class Lab extends Assignable {
             if( !l.allSections ) {
               return -1;
             }
-            if( this.isTutorial ) {
-              if( !l.isTutorial ) {
-                return -1;
-              }
-              return 0;
-            }
+            return 0;
           }
           else{
             if( this.section < l.section ) {
               return -1;
             }
             else if( this.section == l.section ) {
-              if( this.isTutorial ) {
-                if( !l.isTutorial ) {
-                  return -1;
-                }
-                return 0;
-              }
-              if( !l.isTutorial ){
-                return 0;
-              }
+              return 0;
             }
           }
         }
