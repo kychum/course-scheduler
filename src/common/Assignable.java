@@ -12,7 +12,7 @@ public abstract class Assignable implements Comparable<Assignable> {
   protected int section;
 
   public boolean isEveningClass() {
-    return section == 9;
+    return String.valueOf( section ).charAt( 0 ) == '9';
   }
 
   public boolean is500Level() {

@@ -18,6 +18,12 @@ public class Assignment {
       assignments.put( s, new ArrayList<Assignable>() );
     }
     courseAssignments = new TreeMap<Assignable, Slot>();
+
+    instance.getPartAssign().forEach( (assign, slots) -> {
+      slots.forEach( slot -> {
+        add( slot, assign );
+      });
+    });
   }
 
   public TreeMap<Slot, ArrayList<Assignable>> getAssignments() {

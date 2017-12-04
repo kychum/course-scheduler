@@ -4,7 +4,6 @@ gehtnicht9
 Course slots:
 MO, 08:00, 2, 1
 MO, 09:00, 2, 1
-TU, 11:00, 2, 1
 
 Lab slots:
 TU, 14:00, 4, 2

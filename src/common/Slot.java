@@ -104,6 +104,7 @@ public class Slot implements Comparable<Slot> {
     this( Day.of( day ), LocalTime.parse( time, timeFormat ), maxAssign, minAssign, isLab );
   }
 
+  // This is kinda hacky
   private Slot() {
     this.day = Day.TU;
     this.startTime = LocalTime.of( 18, 00 );
