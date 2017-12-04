@@ -43,6 +43,18 @@ public class Main {
       i.finalizeInstance();
       System.out.println(i.toString());
       Scheduler s = new Scheduler(i);
+      // The general idea:
+      // Assignment best;
+      // int maxRuns = 50 // configurable?
+      // for( int i = 0; i < maxRuns; ++i ) {
+      //   Assignment assign = s.makeSchedule(); // Or otherwise get assignment from scheduler
+      //   Optimizer optimizer = new Optimizer( assign );
+      //   Assignment optimized = optimizer.optimize( assign );
+      //   if( optimized.eval() < best.eval() ) {
+      //     best = optimized;
+      //   }
+      // }
+      // System.out.println( best.toString() );
     }
     catch( HardConstraintViolationException e ) {
       System.out.println( String.format( "Unable to find a solution for the given instance! Reason: %s", e.getMessage() ) );

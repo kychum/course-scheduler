@@ -1,6 +1,9 @@
 package common;
+import common.Instance.Preference;
 import java.util.TreeMap;
 import java.util.HashSet;
+import java.util.HashMap;
+import java.util.stream.Collectors;
 import java.util.logging.Logger;
 
 public class Assignment {
@@ -200,5 +203,103 @@ public class Assignment {
       out.append( String.format( "%" + longest + "s : %s", assn.toString(), slot.toString() ) );
     } );
     return out.toString();
+  }
+
+  public HashSet<Slot> getMinViolations() {
+    HashSet<Slot> out = assignments.keySet().stream()
+      .filter( slot -> slot.getMinAssign() < assignments.get(slot).size() )
+      .collect( Collectors.toCollection( HashSet::new ) );
+    return out;
+  }
+
+  public HashSet<Tuple<Assignable, Assignable>> getPairViolations() {
+    HashSet<Tuple<Assignable, Assignable>> out = new HashSet<>();
+    HashMap<Assignable, HashSet<Assignable>> pair = instance.getConstraints().getPair();
+    for( Assignable assign : pair.keySet() ) {
+      HashSet<Assignable> pairedCourses = assignments.get( courseAssignments.get( assign ) );
+      pair.get( assign ).stream().filter( a2 -> !pairedCourses.contains( a2 ) )
+        .forEach( a2 -> {
+          out.add( new Tuple<>( assign, a2 ) );
+        });
+    }
+    return out;
+  }
+
+  public HashMap<Tuple<Assignable, Slot>, Integer> getPrefViolations() {
+    HashMap<Tuple<Assignable, Slot>, Integer> out = new HashMap<>();
+    HashSet<Preference> prefs = instance.getPrefs();
+    for( Preference pref : prefs ) {
+      Assignable assign = pref.getCourse();
+      Slot slot = pref.getSlot();
+      int value = pref.getValue();
+      if( !courseAssignments.get( assign ).equals( slot ) ) {
+        Tuple<Assignable, Slot> tup = new Tuple<>(assign, slot);
+        out.put( tup, value );
+      }
+    }
+    return out;
+  }
+
+  public HashSet<Tuple<Assignable, Assignable>> getSectionViolations() {
+    HashSet<Tuple<Assignable, Assignable>> out = new HashSet<>();
+    for( Course c : instance.getCourses()) {
+      assignments.get( courseAssignments.get( c ) ).stream()
+        .filter( c2 -> c2.getCourseNum() == c.getCourseNum() &&
+            c2.getSection() != c.getSection() )
+        .forEach( c2 -> out.add( new Tuple<>(c, c2) ) );
+    }
+    return out;
+  }
+
+  public int eval( int w_minfilled, int w_pref, int w_pair, int w_secdiff ) {
+    int minfilled = evalMinFilled();
+    int pref = evalPref();
+    int pair = evalPair();
+    int secdiff = evalSecDiff();
+
+    return (minfilled * w_minfilled) + (pref * w_pref) + (pair * w_pair) + (secdiff * w_secdiff);
+  }
+
+  public int evalMinFilled() {
+    return getMinViolations().size();
+  }
+
+  public int evalPref() {
+    return getPrefViolations().values().stream().mapToInt( p -> p ).sum();
+  }
+
+  public int evalPair() {
+    return getPairViolations().size();
+  }
+
+  public int evalSecDiff() {
+    return getSectionViolations().size();
+  }
+
+  // Unordered tuple
+  public class Tuple<F, S> {
+    F first;
+    S second;
+
+    public Tuple(F f, S s) {
+      first = f;
+      second = s;
+    }
+
+    @Override
+    public boolean equals( Object o ) {
+      if( o instanceof Tuple ) {
+        Tuple t = ((Tuple) o);
+        return (first.equals( t.first ) && second.equals( t.second )) ||
+          (first.equals(t.second) && second.equals( t.first ));
+      }
+
+      return false;
+    }
+
+    @Override
+    public int hashCode() {
+      return first.hashCode() ^ second.hashCode();
+    }
   }
 }
