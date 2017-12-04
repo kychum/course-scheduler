@@ -1,6 +1,5 @@
 import common.*;
 import parser.*;
-import scheduler.*;
 import java.util.logging.*;
 import java.util.*;
 
@@ -20,13 +19,12 @@ public class Main {
       i = p.parseFile( args[0] );
     }
     else {
-      i = p.parseFile( "test/input/deptinst2.txt" );
+      i = p.parseFile( "test.txt" );
     }
     // finalize the instance, this adds relevant hard constraints from the assignment spec
     i.finalizeInstance();
     // verify no hard constraints are currently violated
-    i.verifyInstance();
-    //System.out.println(i.toString());
+    System.out.println(i.toString());
   }
   
   // Here we need to start out, we'll have one instance per run of main, but we should generate some number of assignments here
