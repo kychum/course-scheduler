@@ -36,7 +36,7 @@ public class Main {
     }
     else {
     	//i = p.parseFile( "test.txt" );
-    	i = p.parseFile("test\\input\\deptinst2.txt");
+    	i = p.parseFile("test/input/deptinst2.txt");
     }
     // finalize the instance, this adds relevant hard constraints from the assignment spec
     

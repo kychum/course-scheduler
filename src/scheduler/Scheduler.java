@@ -10,6 +10,7 @@ import java.util.Scanner;
 import java.util.TreeMap;
 
 import common.*;
+import optimizer.Optimizer;
 
 import java.util.List;
 import java.util.Random;
@@ -32,6 +33,8 @@ Constraints constraints;
 		assign = new Assignment(i);
 		this.constraints = this.inst.getConstraints();
 		makeSchedule();
+		//Optimizer o = new Optimizer(assign);
+		//o.optimize();
 	}
 
 
@@ -74,20 +77,30 @@ Constraints constraints;
 						assigned=true;					
 					}
 					else {
-						//System.out.println("DEBUG: Failed to assign course " + c.toString() + " to " + courseSlot.toString() + ".");
+						System.out.println("DEBUG: Failed to assign course " + c.toString() + " to " + courseSlot.toString() + ".");
 					}
 				}
 			}
 		}
 		for (Lab l : inst.getLabs()) {
 			assigned=false;
+			TreeMap curAssignments = assign.getCourseAssignments();
 			while(!assigned) {	// Might need an additional limiter to the while loop.
-				int nextSlotIndex = rand.nextInt(labSlotSize);
-				Slot labSlot = inst.getLabSlots().get(nextSlotIndex);
-				// maintainsHardConstraints also makes the assignment
-				if (maintainsHardConstraints(labSlot, l)) {
-					System.out.println("DEBUG: Assigned course " + l.toString() + " to " + labSlot.toString() + "." ); // debug message
-					assigned=true;					
+				for(int i = 0; i<curAssignments.size(); i++)
+				{
+					if (curAssignments.containsKey(l)){
+						assigned=true;
+						break;
+					}
+				}
+				if(!assigned) {
+					int nextSlotIndex = rand.nextInt(labSlotSize);
+					Slot labSlot = inst.getLabSlots().get(nextSlotIndex);
+					// maintainsHardConstraints also makes the assignment
+					if (maintainsHardConstraints(labSlot, l)) {
+						System.out.println("DEBUG: Assigned course " + l.toString() + " to " + labSlot.toString() + "." ); // debug message
+						assigned=true;					
+					}
 				}
 			}
 		}
@@ -121,7 +134,7 @@ Constraints constraints;
 			isValid = true;
 			return isValid;
 		} catch (HardConstraintViolationException e) {
-			//System.out.println("DEBUG: Attempted assignment " + a.toString() + " to " + s.toString() + " failed.");
+			System.out.println("DEBUG: Attempted assignment " + a.toString() + " to " + s.toString() + " failed.");
 			isValid = false;
 			return isValid;
 		}
