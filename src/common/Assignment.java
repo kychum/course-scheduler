@@ -166,12 +166,19 @@ public class Assignment {
 
   public void move( Assignable a, Slot slot ) {
     // Add first so that if the addition throws, we won't accidentally remove it
+    if( instance.getPartAssign().containsKey( a ) ) {
+      throw new HardConstraintViolationException( "Attempting to change a course that is in partAssign" );
+    }
     Slot original = courseAssignments.get( a );
     add( slot, a );
     assignments.get( original ).remove( a );
   }
 
   public void swap(Assignable a1, Assignable a2) throws HardConstraintViolationException {
+    if( instance.getPartAssign().containsKey( a1 ) ||
+        instance.getPartAssign().containsKey( a2 ) ) {
+      throw new HardConstraintViolationException( "Attempting to change a course that is in partAssign" );
+    }
     Slot s1 = this.courseAssignments.get( a1 );
     Slot s2 = this.courseAssignments.get( a2 );
 
