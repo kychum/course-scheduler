@@ -34,6 +34,14 @@ public class Instance{
   public ArrayList<Slot> getCourseSlots() {
     return new ArrayList<Slot>( courseSlots );
   }
+  
+  public HashSet<Slot> getCourseSlotsHash() {
+	  return courseSlots;
+  }
+  
+  public HashSet<Slot> getLabSlotsHash() {
+	  return labSlots;
+  }
 
   public ArrayList<Slot> getLabSlots() {
     return new ArrayList<Slot>( labSlots );

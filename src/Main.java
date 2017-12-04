@@ -1,5 +1,7 @@
 import common.*;
 import parser.*;
+import scheduler.Scheduler;
+
 import java.util.logging.*;
 import java.util.*;
 
@@ -25,6 +27,7 @@ public class Main {
     // finalize the instance, this adds relevant hard constraints from the assignment spec
     
     i.finalizeInstance();
+    System.out.println(i.toString());
     Scheduler s = new Scheduler(i);
   }
   
