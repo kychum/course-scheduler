@@ -127,4 +127,16 @@ public class Assignment {
     this.courseAssignments.put( a1, s2 );
     this.courseAssignments.put( a2, s1 );
   }
+
+  public String toString() {
+    StringBuilder out = new StringBuilder();
+    out.append( "Eval-value: " + "TO BE IMPLEMENTED" );
+    int longest = courseAssignments.keySet().stream()
+      .mapToInt( a -> a.toString().length() )
+      .max().orElse( 0 );
+    courseAssignments.forEach( (assn, slot) -> {
+      out.append( String.format( "%" + longest + "s : %s", assn.toString(), slot.toString() ) );
+    } );
+    return out.toString();
+  }
 }
