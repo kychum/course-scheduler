@@ -23,9 +23,9 @@ public class Main {
       i = p.parseFile( "test.txt" );
     }
     // finalize the instance, this adds relevant hard constraints from the assignment spec
+    
     i.finalizeInstance();
-    // verify no hard constraints are currently violated
-    System.out.println(i.toString());
+    Scheduler s = new Scheduler(i);
   }
   
   // Here we need to start out, we'll have one instance per run of main, but we should generate some number of assignments here
