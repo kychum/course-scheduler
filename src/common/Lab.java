@@ -8,7 +8,7 @@ import java.util.Objects;
  * @version 1.00
  */
 public class Lab extends Assignable {
-  private int courseSection;
+  private int labSection;
   private boolean isTutorial;
   private boolean allSections;
 
@@ -16,17 +16,17 @@ public class Lab extends Assignable {
    * Constructs a Lab object that is associated with a single course section.
    *
    * @param identifier the course identifier
-   * @param courseSection the section of the lecture associated with this lab
+   * @param section the section of the lecture associated with this lab
    * @param allSection flag to check whether the lab is for an entire course, rather than a specific course section,
-   * @param section the lab/tutorial's section number
+   * @param labSection the lab/tutorial's labSection number
    * @param isTutorial determines if the lab should be classified as a tutorial
    */
-  public Lab( String identifier, int courseNum, int courseSection, int section, boolean isTutorial ) {
+  public Lab( String identifier, int courseNum, int section, int labSection, boolean isTutorial ) {
     this.identifier = identifier;
     this.courseNum = courseNum;
-    this.courseSection = courseSection;
-    this.allSections = false;
     this.section = section;
+    this.allSections = false;
+    this.labSection = labSection;
     this.isTutorial = isTutorial;
   }
 
@@ -34,15 +34,15 @@ public class Lab extends Assignable {
    * Constructs a Lab object that can be applied to by students of any section.
    *
    * @param identifier the course identifier
-   * @param section the lab/tutorial's section number
+   * @param labSection the lab/tutorial's section number
    * @param isTutorial determines if the lab should be classified as a tutorial
    */
-  public Lab( String identifier, int courseNum, int section, boolean isTutorial ) {
+  public Lab( String identifier, int courseNum, int labSection, boolean isTutorial ) {
     this.identifier = identifier;
     this.courseNum = courseNum;
-    this.courseSection = -1;
+    this.section = -1;
     this.allSections = true;
-    this.section = section;
+    this.labSection = labSection;
     this.isTutorial = isTutorial;
   }
 
@@ -57,25 +57,29 @@ public class Lab extends Assignable {
       course = identifier + " " + courseNum;
     }
     else {
-      course = identifier + String.format(" %d LEC %02d", courseNum, courseSection);
+      course = identifier + String.format(" %d LEC %02d", courseNum, section);
     }
-    return String.format( "%s %s %02d", course, (isTutorial ? "TUT" : "LAB"), section );
+    return String.format( "%s %s %02d", course, (isTutorial ? "TUT" : "LAB"), labSection );
   }
 
   public boolean isForAllSections() {
     return allSections;
   }
 
-  public int getCourseSection() {
-    return courseSection;
+  public int getLabSection() {
+    return labSection;
+  }
+
+  public boolean isLab() {
+    return true;
   }
 
   public boolean equals( Lab l ){
     return this.identifier.equals( l.identifier ) &&
       this.courseNum == l.courseNum &&
-      this.courseSection == l.courseSection &&
-      this.allSections == l.allSections &&
       this.section == l.section &&
+      this.allSections == l.allSections &&
+      this.labSection == l.labSection &&
       this.isTutorial == l.isTutorial;
   }
 
@@ -88,7 +92,7 @@ public class Lab extends Assignable {
 
   @Override
   public int hashCode() {
-    return Objects.hash( this.identifier, this.courseNum, this.courseSection, this.allSections, this.section, this.isTutorial );
+    return Objects.hash( this.identifier, this.courseNum, this.section, this.allSections, this.labSection, this.isTutorial );
   }
 
   public int compareTo( Course c ) {
@@ -101,7 +105,7 @@ public class Lab extends Assignable {
         return -1;
       }
       else if( this.courseNum == c.courseNum ) {
-        if( this.courseSection < c.section & !allSections) {
+        if( this.section < c.section & !allSections) {
           return -1;
         }
       }
@@ -118,10 +122,10 @@ public class Lab extends Assignable {
         return -1;
       }
       else if( this.courseNum == l.courseNum ) {
-        if( this.section < l.section ) {
+        if( this.labSection < l.labSection ) {
           return -1;
         }
-        else if( this.section == l.section ) {
+        else if( this.labSection == l.labSection ) {
           if( this.allSections ) {
             if( !l.allSections ) {
               return -1;
@@ -134,10 +138,10 @@ public class Lab extends Assignable {
             }
           }
           else{
-            if( this.courseSection < l.courseSection ) {
+            if( this.section < l.section ) {
               return -1;
             }
-            else if( this.courseSection == l.courseSection ) {
+            else if( this.section == l.section ) {
               if( this.isTutorial ) {
                 if( !l.isTutorial ) {
                   return -1;

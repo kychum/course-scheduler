@@ -19,6 +19,8 @@ public abstract class Assignable implements Comparable<Assignable> {
     return courseNum >= 500 && courseNum < 600;
   }
 
+  abstract public boolean isLab();
+
   public String getIdentifier() {
     return identifier;
   }

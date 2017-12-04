@@ -1,22 +1,23 @@
 package common;
 import java.util.TreeMap;
-import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.logging.Logger;
 
 public class Assignment {
   // Represent as a two-way map for easy lookup
-  private TreeMap<Slot, ArrayList<Assignable>> assignments;
+  private TreeMap<Slot, HashSet<Assignable>> assignments;
   private TreeMap<Assignable, Slot> courseAssignments;
   private Instance instance;
-  
+  private static Logger log = Logger.getLogger("Assignment");
+
   public Assignment(Instance instance) {
     this.instance = instance;
-    assignments = new TreeMap<Slot, ArrayList<Assignable>>();
+    assignments = new TreeMap<Slot, HashSet<Assignable>>();
     for( Slot s : instance.getCourseSlots() ) {
-      assignments.put( s, new ArrayList<Assignable>() );
+      assignments.put( s, new HashSet<Assignable>() );
     }
     for( Slot s : instance.getLabSlots() ) {
-      assignments.put( s, new ArrayList<Assignable>() );
+      assignments.put( s, new HashSet<Assignable>() );
     }
     courseAssignments = new TreeMap<Assignable, Slot>();
 
@@ -25,17 +26,34 @@ public class Assignment {
     });
   }
 
-  public TreeMap<Slot, ArrayList<Assignable>> getAssignments() {
+  public Instance getInstance() {
+    return instance;
+  }
+
+  public TreeMap<Slot, HashSet<Assignable>> getAssignmentsBySlot() {
     return assignments;
   }
 
-  public void setAssignments(TreeMap<Slot, ArrayList<Assignable>> assignments) {
+  public TreeMap<Assignable, Slot> getAssignmentsByCourse() {
+    return courseAssignments;
+  }
+
+  public void setAssignments(TreeMap<Slot, HashSet<Assignable>> assignments) {
     this.assignments = assignments;
   }
 
   private void verifyMax( Slot slot ) throws HardConstraintViolationException {
-    if( this.assignments.get( slot ).size() == slot.getMaxAssign() ) {
-      throw new HardConstraintViolationException( "Assignment would cause slot to be over capacity." );
+    if( slot != null ) {
+      long count = 0;
+      if( slot.isLabSlot() ) {
+        count = this.assignments.get( slot ).stream().filter( a -> a.isLab() ).count();
+      }
+      else {
+        count = this.assignments.get( slot ).stream().filter( a -> !a.isLab() ).count();
+      }
+      if( count == slot.getMaxAssign() ) {
+        throw new HardConstraintViolationException( "Assignment would cause slot to be over capacity." );
+      }
     }
   }
 
@@ -45,7 +63,7 @@ public class Assignment {
     }
   }
 
-  private void verifyIncomp( Assignable course, ArrayList<Assignable> assigned ) throws HardConstraintViolationException {
+  private void verifyIncomp( Assignable course, HashSet<Assignable> assigned ) throws HardConstraintViolationException {
     for( Assignable a : assigned ) {
       if( this.instance.getConstraints().checkIncomp( a, course ) ) {
         throw new HardConstraintViolationException( "Assignment would result in incompatibility violation." );
@@ -53,7 +71,7 @@ public class Assignment {
     }
   }
 
-  private void verifyIncomp( Assignable course, ArrayList<Assignable> assigned, Assignable ignore ) throws HardConstraintViolationException {
+  private void verifyIncomp( Assignable course, HashSet<Assignable> assigned, Assignable ignore ) throws HardConstraintViolationException {
     for( Assignable a : assigned ) {
       if( a.equals( ignore ) ) {
         continue;
@@ -63,24 +81,29 @@ public class Assignment {
       }
     }
   }
-  
+
+  //Convenience function
+  public void add(Assignable a, Slot s) throws HardConstraintViolationException {
+    add(s, a);
+  }
+
   public void add(Slot slot, Assignable assignment) throws HardConstraintViolationException {
-    ArrayList<Assignable> currentList = this.assignments.get(slot);
+    HashSet<Assignable> currentList = this.assignments.get(slot);
     // hash the 'dummy' slot to find the real slot so we can check the max assign value
     int val = slot.hashCode();
 
     Slot instanceSlot;
-    if( slot.isLabSlot() ) {
+    if( assignment.isLab() ) {
       instanceSlot = instance.getLabSlotsHash().stream().filter(s -> s.hashCode() == val).findFirst().orElse(null);
       if( !instance.hasLab( assignment ) ){
-        throw new HardConstraintViolationException( "Attempting to assign a lab that does not exist" );
+        throw new HardConstraintViolationException( "Attempting to assign a lab that does not exist, or assigning a course into a lab slot" );
       }
     }
     else{
       instanceSlot = instance.getCourseSlotsHash().stream().filter(s -> s.hashCode() == val).findFirst().orElse(null);
       if( !instance.hasCourse( assignment ) && !assignment.equals( Course.getCPSC813() ) &&
           !assignment.equals( Course.getCPSC913() ) ) {
-        throw new HardConstraintViolationException( "Attempting to assign a course that does not exist" );
+        throw new HardConstraintViolationException( "Attempting to assign a course that does not exist, or assigning a lab into a course slot" );
       }
     }
 
@@ -89,7 +112,7 @@ public class Assignment {
         instanceSlot = Slot.getSpecialSlot();
       }
       else {
-        throw new HardConstraintViolationException( "Attempting to assign class to a slot that doesn't exist." );
+        throw new HardConstraintViolationException( "Attempting to assign class to a slot that doesn't exist, or course/lab to wrong type of slot." );
       }
     }
 
@@ -101,17 +124,52 @@ public class Assignment {
 	  currentList.add(assignment);
     this.courseAssignments.put(assignment, instanceSlot);
   }
-  
-  public void remove(Slot slot, Assignable assignment) {
-	  ArrayList<Assignable> currentList = this.assignments.get(slot);
-	  currentList.remove(assignment);
-	  this.assignments.put(slot, currentList);
+
+  private void remove(Assignable assignment) {
+    Slot slot = courseAssignments.remove( assignment );
+    if( slot == null ) {
+      log.warning( "Attempting to unassign a class that hasn't been assigned" );
+    }
+    else {
+      assignments.get( slot ).remove( assignment );
+    }
   }
-  
+
+  public void move( Assignable a, Slot slot ) {
+    // Add first so that if the addition throws, we won't accidentally remove it
+    add( slot, a );
+    remove( a );
+  }
+
   public void swap(Assignable a1, Assignable a2) throws HardConstraintViolationException {
     Slot s1 = this.courseAssignments.get( a1 );
     Slot s2 = this.courseAssignments.get( a2 );
-	  ArrayList<Assignable> s1List, s2List;
+
+    //Swapping a course with a lab; need to ensure corresponding slots exist
+    if( a1.isLab() != a2.isLab() ) {
+      int s1Hash = s1.hashCode();
+      int s2Hash = s2.hashCode();
+      if( a1.isLab() ) {
+        //a1 is a lab, so a2 is a course
+        s1 = instance.getCourseSlotsHash().stream().filter( s -> s.hashCode() == s1Hash ).findFirst().orElse( null );
+        s2 = instance.getLabSlotsHash().stream().filter( s -> s.hashCode() == s2Hash ).findFirst().orElse( null );
+        verifyMax(s1);
+        verifyMax(s2);
+      }
+      else {
+        //a1 is a course, so a2 is a lab
+        s1 = instance.getLabSlotsHash().stream().filter( s -> s.hashCode() == s1Hash ).findFirst().orElse( null );
+        s2 = instance.getCourseSlotsHash().stream().filter( s -> s.hashCode() == s2Hash ).findFirst().orElse( null );
+        verifyMax(s1);
+        verifyMax(s2);
+      }
+    }
+
+    if( s1 == null || s2 == null ) {
+      throw new HardConstraintViolationException( "Could not swap lab and course due to a corresponding slot not existing" );
+    }
+
+	  HashSet<Assignable> s1List, s2List;
 	  s1List = this.assignments.get(s1);
 	  s2List = this.assignments.get(s2);
 

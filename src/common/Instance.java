@@ -127,7 +127,7 @@ public class Instance{
       // forbid courses from being scheduled at the same time as their labs
       for( Lab l : labs ) {
         if( c.getCourseNum() == l.getCourseNum() ) {
-          if( l.isForAllSections() || (l.getCourseSection() == c.getSection()) ) {
+          if( l.isForAllSections() || (l.getSection() == c.getSection()) ) {
             constraints.addIncomp( c, l );
           }
         }
@@ -211,6 +211,10 @@ public class Instance{
       log.warning( "Ignoring preference for [%s] to slot [%s] due to the assignment being unwanted" );
       preferences.remove( p );
     }
+  }
+
+  public HashSet<Preference> getPrefs() {
+    return preferences;
   }
 
   private void add813() {
@@ -312,7 +316,7 @@ public class Instance{
     return out.toString();
   }
 
-  private class Preference implements Comparable<Preference> {
+  public class Preference implements Comparable<Preference> {
     Assignable course;
     Slot slot;
     int value;
@@ -321,6 +325,18 @@ public class Instance{
       course = a;
       slot = s;
       value = v;
+    }
+
+    public Assignable getCourse() {
+      return course;
+    }
+
+    public Slot getSlot() {
+      return slot;
+    }
+
+    public int getValue() {
+      return value;
     }
 
     public boolean equals( Preference other ){
