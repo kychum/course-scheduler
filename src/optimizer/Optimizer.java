@@ -45,7 +45,14 @@ public class Optimizer{
     PREF,
     SECTION
   }
-  public Assignment optimize(Assignment original) {
+
+  public Assignment getAssignment() {
+    return assignment;
+  }
+
+  // Note that the current solution lacks randomness
+  public void optimize() {
+    if( assignment.eval() == 0 ) return;
     HashSet<Slot> min = assignment.getMinViolations();
     HashSet<Tuple<Assignable, Assignable>> pair = assignment.getPairViolations();
     HashMap<Tuple<Assignable, Slot>, Integer> pref = assignment.getPrefViolations();
@@ -56,58 +63,85 @@ public class Optimizer{
       .map( e -> e.getKey() )
       .collect( Collectors.toList() );
 
-    // Determine which course(s) would give the greatest decrease in eval
-    // In theory trying to resolve the two largest evals at once would provide
-    // the best gain (for a greedy algorithm), but that seems to be more complex
-    // than initially thought, so we'll go with the biggest for now.
-    ConstraintType biggest = ConstraintType.NONE;
-    if( sortedPref.size() > 0 ) {
-      int prefVal = pref.get( sortedPref.get( 0 ) ) * w_pref;
-      int[] vals = { w_minfilled, prefVal, w_pair, w_secdiff };
-      int maxVal = Arrays.stream( vals ).max().getAsInt();
-      if( prefVal == maxVal )
-        biggest = ConstraintType.PREF;
-      if( w_minfilled == maxVal && min.size() > 0 )
-        biggest = ConstraintType.MIN;
-      if( w_pair == maxVal && pair.size() > 0 )
-        biggest = ConstraintType.PAIR;
-      if( w_secdiff == maxVal && secdiff.size() > 0 )
-        biggest = ConstraintType.SECTION;
-    } else {
-      int[] vals = { w_minfilled, w_pair, w_secdiff };
-      int maxVal = Arrays.stream( vals ).max().getAsInt();
-      if( w_minfilled == maxVal && min.size() > 0 )
-        biggest = ConstraintType.MIN;
-      if( w_pair == maxVal && pair.size() > 0 )
-        biggest = ConstraintType.PAIR;
-      if( w_secdiff == maxVal && secdiff.size() > 0 )
-        biggest = ConstraintType.SECTION;
-    }
+    while( !min.isEmpty() && !pair.isEmpty() && !pref.isEmpty() && !secdiff.isEmpty() ) {
+      // Determine which course(s) would give the greatest decrease in eval
+      ConstraintType biggest = ConstraintType.NONE;
+      if( sortedPref.size() > 0 ) {
+        int prefVal = pref.get( sortedPref.get( 0 ) ) * w_pref;
+        int[] vals = { w_minfilled, prefVal, w_pair, w_secdiff };
+        int maxVal = Arrays.stream( vals ).max().getAsInt();
+        if( prefVal == maxVal )
+          biggest = ConstraintType.PREF;
+        if( w_minfilled == maxVal && min.size() > 0 )
+          biggest = ConstraintType.MIN;
+        if( w_pair == maxVal && pair.size() > 0 )
+          biggest = ConstraintType.PAIR;
+        if( w_secdiff == maxVal && secdiff.size() > 0 )
+          biggest = ConstraintType.SECTION;
+      } else {
+        int[] vals = { w_minfilled, w_pair, w_secdiff };
+        int maxVal = Arrays.stream( vals ).max().getAsInt();
+        if( w_minfilled == maxVal && min.size() > 0 )
+          biggest = ConstraintType.MIN;
+        if( w_pair == maxVal && pair.size() > 0 )
+          biggest = ConstraintType.PAIR;
+        if( w_secdiff == maxVal && secdiff.size() > 0 )
+          biggest = ConstraintType.SECTION;
+      }
 
-    // Try to fix the violation
-    switch( biggest ) {
-      case PAIR:
-        resolvePair( pair.stream().findAny().orElse( null ) );
-        break;
-      case SECTION:
-        resolveSection( secdiff.stream().findAny().orElse( null ) );
-        break;
-      case PREF:
-        resolvePref( sortedPref.get( 0 ) );
-        break;
-      case MIN:
-        resolveMin( min.stream().findAny().orElse( null ) );
-        break;
-      default:
-        break;
-    }
+      // Try to fix the violation
+      boolean resolved = true;
+      switch( biggest ) {
+        case PAIR:
+          Tuple<Assignable, Assignable> pairViolator = pair.stream().findAny().orElse( null );
+          if( !resolvePair( pairViolator ) ){
+            // Note that this action should not be tried again for the current iteration
+            pair.remove(pairViolator);
+            resolved = false;
+          }
+          break;
+        case SECTION:
+          Tuple<Assignable, Assignable> secViolator = secdiff.stream().findAny().orElse( null );
+          if( !resolveSection( secViolator ) ) {
+            secdiff.remove( secViolator );
+            resolved = false;
+          }
+          break;
+        case PREF:
+          Tuple<Assignable, Slot> prefViolator = sortedPref.get( 0 );
+          if( !resolvePref( prefViolator ) ){
+            sortedPref.remove( 0 );
+            resolved = false;
+          }
+          break;
+        case MIN:
+          Slot minViolator = min.stream().findAny().orElse( null );
+          if( !resolveMin( minViolator ) ){
+            min.remove(minViolator);
+            resolved = false;
+          }
+          break;
+        default:
+          break;
+      }
 
-    return original;
+      if( resolved ) {
+        min = assignment.getMinViolations();
+        pair = assignment.getPairViolations();
+        pref = assignment.getPrefViolations();
+        secdiff = assignment.getSectionViolations();
+
+        // Sorted by the values, descending order
+        sortedPref = pref.entrySet().stream().sorted( Map.Entry.comparingByValue( Comparator.reverseOrder() ) )
+          .map( e -> e.getKey() )
+          .collect( Collectors.toList() );
+      }
+    }
   }
 
-  //TODO: Handle null
   enum Operation { MOVE, MOVE_SECOND, SWAP, SWAP_SECOND, NONE }
   private boolean resolvePref( Tuple<Assignable, Slot> pref ) {
+    if( pref == null ) return false;
     // Note: treating the second type as a union; too tired to care about correctness at the moment.
     Tuple<Operation, Tuple<Assignable, Slot>> bestMove = new Tuple<Operation, Tuple<Assignable, Slot>>( Operation.MOVE, new Tuple<Assignable, Slot>( null, pref.second ));
     int bestDecrease = assignment.stageAction( pref.first, pref.second );
@@ -133,6 +167,7 @@ public class Optimizer{
   }
 
   private boolean resolvePair( Tuple<Assignable, Assignable> pair ) {
+    if( pair == null ) return false;
     Slot firstSlot = assignment.getAssignmentsByCourse().get( pair.first );
     Slot secondSlot = assignment.getAssignmentsByCourse().get( pair.second );
     Tuple<Operation, Tuple<Assignable, Slot>> bestMove = new Tuple<Operation, Tuple<Assignable,Slot>>(Operation.NONE, new Tuple<Assignable,Slot>(null, null));
@@ -189,6 +224,7 @@ public class Optimizer{
   }
 
   private boolean resolveSection( Tuple<Assignable, Assignable> section ) {
+    if( section == null ) return false;
     // Both slots are the same;
     Slot slot = assignment.getAssignmentsByCourse().get( section.first );
     Tuple<Operation, Tuple<Assignable, Slot>> bestMove = new Tuple<Operation, Tuple<Assignable,Slot>>(Operation.NONE, null);
@@ -243,6 +279,7 @@ public class Optimizer{
   }
 
   private boolean resolveMin( Slot slot ) {
+    if( slot == null ) return false;
     int bestDecrease = 0;
     Tuple<Operation, Tuple<Assignable, Slot>> bestMove = new Tuple<Operation, Tuple<Assignable,Slot>>( Operation.NONE, null);
     for( Slot s : assignment.getAssignmentsBySlot().keySet() ) {
