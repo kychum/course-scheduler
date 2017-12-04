@@ -1,11 +1,6 @@
 import common.*;
 import parser.*;
-<<<<<<< HEAD
 import scheduler.Scheduler;
-
-=======
-import scheduler.*;
->>>>>>> Add config to read in weights on runtime
 import java.util.logging.*;
 import java.util.*;
 import java.nio.file.Files;
