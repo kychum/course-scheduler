@@ -19,10 +19,8 @@ public class Assignment {
     }
     courseAssignments = new TreeMap<Assignable, Slot>();
 
-    instance.getPartAssign().forEach( (assign, slots) -> {
-      slots.forEach( slot -> {
-        add( slot, assign );
-      });
+    instance.getPartAssign().forEach( (assign, slot) -> {
+      add( slot, assign );
     });
   }
 

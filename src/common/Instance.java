@@ -81,8 +81,11 @@ public class Instance{
     return this.constraints.addUnwanted( assn, slot );
   }
 
-  public boolean addPartAssign( Assignable assn, Slot slot ) {
-    return this.partAssign.put( assn, slot );
+  public void addPartAssign( Assignable assn, Slot slot ) throws HardConstraintViolationException {
+    if( partAssign.containsKey( assn ) && !partAssign.get( assn ).equals( slot ) ) {
+      throw new HardConstraintViolationException( String.format("Class [%s] has two different partial assignments.", assn.toString()) );
+    }
+    this.partAssign.put( assn, slot );
   }
 
   HashMap<Assignable, Slot> getPartAssign() {
@@ -179,6 +182,14 @@ public class Instance{
         throw new HardConstraintViolationException( "Assignable does not exist in the list of courses or labs" );
       }
     } );
+
+    // Check preferences
+    preferences.stream()
+      .filter( p -> constraints.checkUnwanted( p.course, p.slot ) )
+      .forEach( p -> {
+        log.warning( "Ignoring preference for [%s] to slot [%s] due to the assignment being unwanted" );
+        preferences.remove( p );
+      });
   }
 
   private void add813() {
@@ -274,11 +285,7 @@ public class Instance{
     out.append("Partial assignments:\n");
     partAssign.keySet().stream()
       .sorted()
-      .forEach( assn ->
-        partAssign.get( assn ).stream()
-          .sorted()
-          .forEach( s -> out.append( assn.toString() + ", " + s.toString() + "\n" ) )
-      );
+      .forEach( assn -> out.append( assn.toString() + ", " + partAssign.get( assn ).toString() + "\n" ) );
     out.append("\n");
 
     return out.toString();

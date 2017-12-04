@@ -84,7 +84,7 @@ public class Constraints {
   }
 
   public boolean checkUnwanted( Assignable assign, Slot slot ) {
-    return unwanted.get( assign ).contains( slot );
+    return unwanted.containsKey( assign ) && unwanted.get( assign ).contains( slot );
   }
 
   HashMap<Assignable, HashSet<Assignable>> getIncomp() {

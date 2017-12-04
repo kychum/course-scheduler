@@ -16,7 +16,7 @@ class InstanceTest {
 
   @ParameterizedTest( name = "gehtnicht{0}.txt" )
   @DisplayName( "Check instance validation when finalizeInstance is called" )
-  @ValueSource( ints = { 1, 2, 6, 7, 8, 9 } )
+  @ValueSource( ints = { 1, 2, 7, 8, 9 } )
   void testBadInstance(int i) {
     Instance inst = parser.parseFile( String.format( "test/input/gehtnicht%d.txt", i ) );
     assertThrows( HardConstraintViolationException.class, () -> inst.finalizeInstance(),
