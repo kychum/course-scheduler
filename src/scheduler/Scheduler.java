@@ -68,13 +68,13 @@ Constraints constraints;
 				if (!assigned) {
 					int nextSlotIndex = rand.nextInt(courseSlotSize);
 					Slot courseSlot = inst.getCourseSlots().get(nextSlotIndex);
+					// maintainsHardConstraints also makes the assignment
 					if (maintainsHardConstraints(courseSlot, c)) {
-						assign.add(courseSlot, c);
 						System.out.println("DEBUG: Assigned course " + c.toString() + " to " + courseSlot.toString() + "." ); // debug message
 						assigned=true;					
 					}
 					else {
-						System.out.println("DEBUG: Failed to assign course " + c.toString() + " to " + courseSlot.toString() + ".");
+						//System.out.println("DEBUG: Failed to assign course " + c.toString() + " to " + courseSlot.toString() + ".");
 					}
 				}
 			}
@@ -84,8 +84,8 @@ Constraints constraints;
 			while(!assigned) {	// Might need an additional limiter to the while loop.
 				int nextSlotIndex = rand.nextInt(labSlotSize);
 				Slot labSlot = inst.getLabSlots().get(nextSlotIndex);
+				// maintainsHardConstraints also makes the assignment
 				if (maintainsHardConstraints(labSlot, l)) {
-					assign.add(labSlot, l);
 					System.out.println("DEBUG: Assigned course " + l.toString() + " to " + labSlot.toString() + "." ); // debug message
 					assigned=true;					
 				}
@@ -115,14 +115,13 @@ Constraints constraints;
 	 */
 	private boolean maintainsHardConstraints(Slot s, Assignable a) {
 		boolean isValid = false;
-		Assignment tempAssign = assign;
 		try {
-			tempAssign.add(s, a);
+			assign.add(s, a);
 			// TODO: Figure out why exception thrown within Assignment class terminates entire program.
 			isValid = true;
 			return isValid;
 		} catch (HardConstraintViolationException e) {
-			System.out.println("DEBUG: Attempted assignment " + a.toString() + " to " + s.toString() + " failed.");
+			//System.out.println("DEBUG: Attempted assignment " + a.toString() + " to " + s.toString() + " failed.");
 			isValid = false;
 			return isValid;
 		}
