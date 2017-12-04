@@ -14,7 +14,7 @@ public class Instance{
   private HashSet<Slot> courseSlots;
   private HashSet<Slot> labSlots;
   private Constraints constraints;
-  private HashMap<Assignable, HashSet<Slot>> partAssign;
+  private HashMap<Assignable, Slot> partAssign;
   private HashSet<Preference> preferences;
 
   public Instance () {
@@ -82,13 +82,10 @@ public class Instance{
   }
 
   public boolean addPartAssign( Assignable assn, Slot slot ) {
-    if( !this.partAssign.containsKey( assn ) ) {
-      this.partAssign.put( assn, new HashSet<Slot>() );
-    }
-    return this.partAssign.get( assn ).add( slot );
+    return this.partAssign.put( assn, slot );
   }
 
-  HashMap<Assignable, HashSet<Slot>> getPartAssign() {
+  HashMap<Assignable, Slot> getPartAssign() {
     return partAssign;
   }
 
@@ -178,7 +175,7 @@ public class Instance{
           throw new HardConstraintViolationException( "Lab is not assigned to a lab slot" );
         }
       }
-      else {
+      else if( course.getCourseNum() != 813 && course.getCourseNum() != 913) {
         throw new HardConstraintViolationException( "Assignable does not exist in the list of courses or labs" );
       }
     } );

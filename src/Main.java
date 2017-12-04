@@ -7,11 +7,12 @@ import java.util.*;
 public class Main {
   public static void main( String[] args ) {
 	// setup handler for logging
+    System.setProperty( "java.util.logging.SimpleFormatter.format",
+        "[%1$tF %1$tT] [%4$s] [%2$s]  %5$s%6$s%n");
     Handler h = new ConsoleHandler();
     h.setLevel(Level.ALL);
-    Logger.getLogger("Parser").addHandler( h );
-    Logger.getLogger("Parser").setLevel(Level.ALL);
-    Logger.getLogger("Parser").fine("test");
+    Logger.getLogger("").addHandler( h );
+    Logger.getLogger("").setLevel(Level.ALL);
     // create a parser so we can begin reading input file
     Parser p = new Parser();
     // parseFile constructs an instance from a file for us
