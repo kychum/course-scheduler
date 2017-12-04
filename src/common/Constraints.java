@@ -58,7 +58,8 @@ public class Constraints {
 
   public boolean checkIncomp(Assignable a1, Assignable a2) {
     // Since the mapping is two-way, it should always only check one of these
-	  return (incomp.get(a1).contains(a2) || incomp.get(a2).contains(a1));
+	  return (incomp.containsKey(a1) && incomp.get(a1).contains(a2)) ||
+      (incomp.containsKey(a2) && incomp.get(a2).contains(a1));
   }
 
   public boolean addPair(Assignable a1, Assignable a2) {
@@ -73,7 +74,8 @@ public class Constraints {
 
 
   public boolean checkPair(Assignable a1, Assignable a2) {
-    return (pair.get(a1).contains(a2) || pair.get(a2).contains(a1));
+    return (pair.containsKey(a1) && pair.get(a1).contains(a2)) ||
+      ( pair.containsKey(a2) && pair.get(a2).contains(a1));
   }
 
   public boolean addUnwanted( Assignable assign, Slot slot ) {

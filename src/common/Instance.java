@@ -123,7 +123,7 @@ public class Instance{
       // forbid courses from being scheduled at the same time as their labs
       for( Lab l : labs ) {
         if( c.getCourseNum() == l.getCourseNum() ) {
-          if( l.isForAllSections() || (l.getSection() == c.getSection()) ) {
+          if( l.isForAllSections() || (l.getCourseSection() == c.getSection()) ) {
             constraints.addIncomp( c, l );
           }
         }
