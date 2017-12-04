@@ -165,20 +165,17 @@ public class Instance{
 
     // Check partial assignments
     partAssign.forEach( (course, slot) -> {
-    	
-    	System.out.println("ZPMG " + course.toString());
-    	
       if( courses.contains( course ) && course.getCourseNum() != 813 && course.getCourseNum() != 913 ) {
-        if( !courseSlots.contains( slot.toArray()[0]) ) {
+        if( !courseSlots.contains( slot ) ) {
           throw new HardConstraintViolationException( "Course is not assigned to a course slot" );
         }
       }
       else if( labs.contains( course ) ) {
-        if( !labSlots.contains( slot.toArray()[0] ) ) {
+        if( !labSlots.contains( slot ) ) {
           throw new HardConstraintViolationException( "Lab is not assigned to a lab slot" );
         }
       }
-      else if( course.getCourseNum() != 813 && course.getCourseNum() != 913) {
+      else if( course.getCourseNum() != 813 && course.getCourseNum() != 913 ) {
         throw new HardConstraintViolationException( "Assignable does not exist in the list of courses or labs" );
       }
     } );
