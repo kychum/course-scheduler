@@ -46,12 +46,12 @@ Constraints constraints;
 		rand = new Random(0);
 		//initialize();
 		OrTree t = new OrTree(assign, inst, rand);
+		//If false it is impossible to make a valid assignment without violating hard constrants 
 		boolean validSchedule = t.makeTree();
 		
 		if (!validSchedule)
 			System.out.println("Assignment can not be made without violating hard constrants");
 		
-		System.out.println(assign.toString());
 			
 			
 		

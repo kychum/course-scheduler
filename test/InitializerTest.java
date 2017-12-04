@@ -27,17 +27,17 @@ class InitializerTest {
 		System.out.println("Starting file: " + filename);
 		Instance i = parser.parseFile(file);
 		i.finalizeInstance();
-		//Scheduler s = new Scheduler(i);
+		Scheduler s = new Scheduler(i);
 		String expected = filename + ".expected";
-		//String out = s.getAssignment().getCourseAssignments().toString();
-	    //BufferedWriter writer;
-	    //try {
-	    	//writer = new BufferedWriter(new FileWriter(expected));
-	    	//writer.write("foo");
-	    	//writer.close();
-	    //} catch (IOException e) {
-	    //	e.printStackTrace();
-	    //}
+		String out = s.getAssignment().toString();
+	    BufferedWriter writer;
+	    try {
+	    	writer = new BufferedWriter(new FileWriter(expected));
+	    	writer.write(out);
+	    	writer.close();
+	    } catch (IOException e) {
+	    	e.printStackTrace();
+	    }
 	}
 
 }

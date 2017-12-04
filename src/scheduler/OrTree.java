@@ -35,7 +35,7 @@ public class OrTree {
 		//currentNode = new Node(null);
 	}
 	
-	public boolean makeTree() {
+	public boolean makeTree(){
 		
 		
 		return makeTreeRec(0);
