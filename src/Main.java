@@ -13,6 +13,7 @@ public class Main {
   static int pref = 10;
   static int pair = 10;
   static int secdiff = 10;
+  static int maxRuns = 150;
   static Logger log;
   public static void main( String[] args ) {
 	// setup handler for logging
@@ -21,7 +22,7 @@ public class Main {
     Handler h = new ConsoleHandler();
     h.setLevel(Level.ALL);
     Logger.getLogger("").addHandler( h );
-    Logger.getLogger("").setLevel(Level.ALL);
+    Logger.getLogger("").setLevel(Level.WARNING);
     log = Logger.getLogger("Main");
 
     loadConfig();
@@ -47,16 +48,16 @@ public class Main {
       Scheduler s = new Scheduler(i);
       s.makeSchedule();
       // The general idea:
-      // Assignment best;
-      // int maxRuns = 50 // configurable?
+      // Assignment best = null;
       // for( int i = 0; i < maxRuns; ++i ) {
       //   Assignment assign = s.makeSchedule(); // Or otherwise get assignment from scheduler
       //   Optimizer optimizer = new Optimizer( assign );
       //   Assignment optimized = optimizer.optimize( assign, minfilled, pref, pair, secdiff );
-      //   if( optimized.eval() < best.eval() ) {
+      //   if( best == null || optimized.eval() < best.eval() ) {
       //     best = optimized;
       //   }
       // }
+      // System.out.println( "The best solution after " + maxRuns + " runs is:" );
       // System.out.println( best.toString() );
     }
     catch( HardConstraintViolationException e ) {
@@ -87,6 +88,9 @@ public class Main {
             break;
           case "secdiff":
             secdiff = Integer.parseInt( kvPair[1] );
+            break;
+          case "maxRuns":
+            maxRuns = Integer.parseInt( kvPair[1] );
             break;
           default:
             log.warning( String.format( "Unknown setting [%s=%s]. Ignoring..", kvPair[0], kvPair[1] ) );

@@ -15,11 +15,13 @@ import java.util.List;
 import java.util.HashSet;
 import java.util.logging.Logger;
 import java.util.Map;
+import java.util.Random;
 
 public class Optimizer{
   private Assignment assignment;
   private Instance instance;
   private static Logger log = Logger.getLogger("Optimizer");
+  private static Random rand = new Random();
 
   private int w_minfilled;
   private int w_pref;
@@ -67,8 +69,10 @@ public class Optimizer{
       .map( e -> e.getKey() )
       .collect( Collectors.toList() );
 
-    while( !min.isEmpty() || !pair.isEmpty() || !pref.isEmpty() || !secdiff.isEmpty() ) {
+    while( !min.isEmpty() || !pair.isEmpty() || !sortedPref.isEmpty() || !secdiff.isEmpty() ) {
       // Determine which course(s) would give the greatest decrease in eval
+      // Rather than a strict best-move, we start with this heuristic, where
+      // fixing the violation with the largest eval should give a fairly good result.
       ConstraintType biggest = ConstraintType.NONE;
       if( sortedPref.size() > 0 ) {
         int prefVal = pref.get( sortedPref.get( 0 ) ) * w_pref;
@@ -92,39 +96,62 @@ public class Optimizer{
         if( w_secdiff == maxVal && secdiff.size() > 0 )
           biggest = ConstraintType.SECTION;
       }
-      log.info("Determined biggest violator is of type" + biggest.toString());
+
+      if( biggest == ConstraintType.NONE ) {
+        log.fine( "Found no more solvable constraint violations" );
+        break;
+      }
+      log.fine("Determined biggest violator is of type" + biggest.toString());
+      log.fine(String.format("Eval before attempting resolution is [%d]", assignment.eval()));
 
       // Try to fix the violation
-      boolean resolved = true;
+      boolean resolved = false;
       switch( biggest ) {
         case PAIR:
-          Tuple<Assignable, Assignable> pairViolator = pair.stream().findAny().orElse( null );
+          List<Tuple<Assignable, Assignable>> pairList = pair.stream().collect( Collectors.toList() );
+          Tuple<Assignable, Assignable> pairViolator = pairList.get( rand.nextInt( pairList.size() ) );
           if( !resolvePair( pairViolator ) ){
             // Note that this action should not be tried again for the current iteration
             pair.remove(pairViolator);
-            resolved = false;
+          }
+          else { 
+            resolved = true;
           }
           break;
         case SECTION:
-          Tuple<Assignable, Assignable> secViolator = secdiff.stream().findAny().orElse( null );
+          List<Tuple<Assignable, Assignable>> secdiffList = secdiff.stream().collect( Collectors.toList() );
+          Tuple<Assignable, Assignable> secViolator = secdiffList.get( rand.nextInt( secdiffList.size() ) );
           if( !resolveSection( secViolator ) ) {
             secdiff.remove( secViolator );
             resolved = false;
           }
+          else {
+            resolved = true;
+          }
           break;
         case PREF:
-          Tuple<Assignable, Slot> prefViolator = sortedPref.get( 0 );
+          final HashMap<Tuple<Assignable, Slot>, Integer> finalPref = assignment.getPrefViolations();
+          int maxPref = pref.get( sortedPref.get( 0 ) );
+          List<Tuple<Assignable, Slot>> prefList = sortedPref.stream().filter( p -> finalPref.get(p) == maxPref ).collect( Collectors.toList() );
+          Tuple<Assignable, Slot> prefViolator = prefList.get( rand.nextInt( prefList.size() ) );
           if( !resolvePref( prefViolator ) ){
-            sortedPref.remove( 0 );
+            sortedPref.remove( prefViolator );
+            pref.remove( prefViolator );
             resolved = false;
+          }
+          else {
+            resolved = true;
           }
           break;
         case MIN:
-          Slot minViolator = min.stream().findAny().orElse( null );
+          Slot[] minArray = min.stream().toArray( Slot[]::new );
+          Slot minViolator = minArray[ rand.nextInt( minArray.length ) ];
           if( minViolator != null && !resolveMin( minViolator ) ){
             min.remove(minViolator);
             resolved = false;
-          } else {
+          }
+          else {
+            resolved = true;
           }
           break;
         default:
@@ -132,7 +159,7 @@ public class Optimizer{
       }
 
       if( resolved ) {
-        log.info("updating violations");
+        log.finer("updating violations");
         min = assignment.getMinViolations();
         pair = assignment.getPairViolations();
         pref = assignment.getPrefViolations();
@@ -143,6 +170,8 @@ public class Optimizer{
           .map( e -> e.getKey() )
           .collect( Collectors.toList() );
       }
+
+      log.finer( String.format("At the end of the loop, min[%d], pair[%d], pref[%d], secdiff[%d]", min.size(), pair.size(), pref.size(), secdiff.size()));
     }
   }
 
@@ -163,10 +192,12 @@ public class Optimizer{
     if( bestDecrease > 0 ) {
       if( bestMove.first == Operation.SWAP ) {
         assignment.swap( pref.first, bestMove.second.first );
+        log.info( String.format("Swapping courses [%s] and [%s] for an eval-decrease of [%d]. Post-swap eval is [%d]", pref.first.toString(), bestMove.second.first.toString(), bestDecrease, assignment.eval() ) );
         return true;
       }
       else if( bestMove.first == Operation.MOVE ) {
         assignment.move( pref.first, pref.second );
+        log.info( String.format("Moving course [%s] to slot [%s] for an eval-decrease of [%d]. Post-move eval is [%d]", pref.first.toString(), pref.second.toString(), bestDecrease, assignment.eval() ) );
         return true;
       }
     }
@@ -215,15 +246,19 @@ public class Optimizer{
       switch( bestMove.first ) {
         case MOVE:
           assignment.move( pair.first, secondSlot );
+          log.info( String.format( "Moving [%s] to [%s] for a decrease of [%d]. Post-move eval=[%d]", pair.first.toString(), secondSlot.toString(), bestDecrease, assignment.eval() ) );
           break;
         case MOVE_SECOND:
           assignment.move( pair.second, firstSlot );
+          log.info( String.format( "Moving [%s] to [%s] for a decrease of [%d]. Post-move eval=[%d]", pair.second.toString(), firstSlot.toString(), bestDecrease, assignment.eval() ) );
           break;
         case SWAP:
           assignment.swap( pair.first, bestMove.second.first );
+          log.info( String.format( "Swapping [%s] with [%s] for a decrease of [%d]. Post-move eval=[%d]", pair.first.toString(), bestMove.second.first.toString(), bestDecrease, assignment.eval() ) );
           break;
         case SWAP_SECOND:
           assignment.swap( pair.second, bestMove.second.first );
+          log.info( String.format( "Swapping [%s] with [%s] for a decrease of [%d]. Post-move eval=[%d]", pair.second.toString(), bestMove.second.first.toString(), bestDecrease, assignment.eval() ) );
           break;
       }
     }
@@ -270,15 +305,19 @@ public class Optimizer{
       switch( bestMove.first ) {
         case MOVE:
           assignment.move( section.first, bestMove.second.second );
+          log.info( String.format("Moving [%s] to [%s] for a decrease of [%d]. Final eval is [%d]", section.first.toString(), bestMove.second.second.toString(), bestDecrease, assignment.eval() ));
           break;
         case MOVE_SECOND:
           assignment.move( section.second, bestMove.second.second );
+          log.info( String.format("Moving [%s] to [%s] for a decrease of [%d]. Final eval is [%d]", section.second.toString(), bestMove.second.second.toString(), bestDecrease, assignment.eval() ));
           break;
         case SWAP:
           assignment.swap( section.first, bestMove.second.first );
+          log.info( String.format("Swapping [%s] to [%s] for a decrease of [%d]. Final eval is [%d]", section.first.toString(), bestMove.second.first.toString(), bestDecrease, assignment.eval() ));
           break;
         case SWAP_SECOND:
           assignment.swap( section.second, bestMove.second.first );
+          log.info( String.format("Swapping [%s] to [%s] for a decrease of [%d]. Final eval is [%d]", section.second.toString(), bestMove.second.first.toString(), bestDecrease, assignment.eval() ));
           break;
       }
     }
@@ -304,6 +343,7 @@ public class Optimizer{
     if( bestDecrease > 0 ) {
       if( bestMove.first == Operation.MOVE ) {
         assignment.move( bestMove.second.first, slot );
+        log.info( String.format( "Moving [%s] to [%s] for decrease of [%d], final eval is [%d]", bestMove.second.first.toString(), slot.toString(), bestDecrease, assignment.eval()));
         return true;
       }
     }

@@ -45,6 +45,9 @@ public class Assignment {
     }
     courseAssignments = new TreeMap<Assignable, Slot>();
 
+    if( instance.getPartAssign().keySet().stream().filter( assn -> assn.getCourseNum() == 813 || assn.getCourseNum() == 913 ).count() > 0 ) {
+      assignments.put( Slot.getSpecialSlot(), new HashSet<>() );
+    }
     instance.getPartAssign().forEach( (assign, slot) -> {
       add( slot, assign );
     });
@@ -166,12 +169,19 @@ public class Assignment {
 
   public void move( Assignable a, Slot slot ) {
     // Add first so that if the addition throws, we won't accidentally remove it
+    if( instance.getPartAssign().containsKey( a ) ) {
+      throw new HardConstraintViolationException( "Attempting to change a course that is in partAssign" );
+    }
     Slot original = courseAssignments.get( a );
     add( slot, a );
     assignments.get( original ).remove( a );
   }
 
   public void swap(Assignable a1, Assignable a2) throws HardConstraintViolationException {
+    if( instance.getPartAssign().containsKey( a1 ) ||
+        instance.getPartAssign().containsKey( a2 ) ) {
+      throw new HardConstraintViolationException( "Attempting to change a course that is in partAssign" );
+    }
     Slot s1 = this.courseAssignments.get( a1 );
     Slot s2 = this.courseAssignments.get( a2 );
 
@@ -223,7 +233,7 @@ public class Assignment {
       .mapToInt( a -> a.toString().length() )
       .max().orElse( 0 );
     courseAssignments.forEach( (assn, slot) -> {
-      out.append( String.format( "%-" + longest + "s : %s\n", assn.toString(), slot.toString() ) );
+      out.append( String.format( "%-" + longest + "s : %s\n", assn.toString(), slot.toString( true ) ) );
     } );
     return out.toString();
   }

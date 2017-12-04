@@ -188,16 +188,20 @@ public class Slot implements Comparable<Slot> {
     return isLab;
   }
 
+  public String toString() {
+    return toString(false);
+  }
+
   /**
    * Transforms the slot into a string.
    *
    * @return The string representation of a slot, for example, "FR, 10:00"
    */
-  public String toString() {
+  public String toString( boolean shortForm ) {
     // FIXME: This would probably be error-prone in a general situation
-    if( maxAssign != 0 || minAssign != 0 )
-      return String.format("%s, %s, %d, %d", day.toString(), startTime.toString(), maxAssign, minAssign);
-    return String.format("%s, %s", day.toString(), startTime.toString() );
+    if( shortForm )
+      return String.format("%s, %s", day.toString(), startTime.toString() );
+    return String.format("%s, %s, %d, %d", day.toString(), startTime.toString(), maxAssign, minAssign);
   }
 
   /**

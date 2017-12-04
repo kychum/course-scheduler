@@ -188,4 +188,22 @@ class AssignmentTest{
     assertEquals( 10, a.eval() );
     assertFalse( a.getMinViolations().isEmpty() );
   }
+
+  @Test
+  @DisplayName( "Prevent changing partial assignments" )
+  void testPartAssign() {
+    Instance i = new Instance();
+    Slot s1 = new Slot( "MO", "5:00", 100, 1, false );
+    Slot s2 = new Slot( "MO", "12:00", 100, 1, false );
+    Course c1 = new Course( "CPSC", 100, 1 );
+    Course c2 = new Course( "CPSC", 101, 1 );
+    i.addCourseSlot( s1 );
+    i.addCourseSlot( s2 );
+    i.addCourse( c1 );
+    i.addCourse( c2 );
+    i.addPartAssign( c1, s1 );
+    Assignment a = new Assignment( i );
+    assertThrows( HardConstraintViolationException.class, () -> a.swap( c1, c2 ) );
+    assertThrows( HardConstraintViolationException.class, () -> a.move( c1, s2 ) );
+  }
 }
