@@ -154,7 +154,7 @@ public class Assignment {
     this.courseAssignments.put(assignment, instanceSlot);
   }
 
-  private void remove(Assignable assignment) {
+  public void remove(Assignable assignment) {
     Slot slot = courseAssignments.remove( assignment );
     if( slot == null ) {
       log.warning( "Attempting to unassign a class that hasn't been assigned" );

@@ -36,6 +36,7 @@ public class Main {
     }
     else {
     	//i = p.parseFile( "test.txt" );
+    	//i = p.parseFile("test/input/gehtnicht3.txt");
     	i = p.parseFile("test/input/deptinst2.txt");
     }
     // finalize the instance, this adds relevant hard constraints from the assignment spec
@@ -44,6 +45,7 @@ public class Main {
       i.finalizeInstance();
       System.out.println(i.toString());
       Scheduler s = new Scheduler(i);
+      s.makeSchedule();
       // The general idea:
       // Assignment best;
       // int maxRuns = 50 // configurable?
