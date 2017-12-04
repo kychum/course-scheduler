@@ -32,16 +32,11 @@ Constraints constraints;
 		this.inst = i;
 		assign = new Assignment(i);
 		this.constraints = this.inst.getConstraints();
-		makeSchedule();
-		System.out.println( assign.toString() );
-		Optimizer o = new Optimizer(assign);
-		o.optimize();
-		System.out.println( o.getAssignment().toString() );
 	}
 
 
 
-	public void makeSchedule() {
+	public Assignment makeSchedule() {
 		
 		rand = new Random(0);
 		//initialize();
@@ -49,13 +44,9 @@ Constraints constraints;
 		boolean validSchedule = t.makeTree();
 		
 		if (!validSchedule)
-			System.out.println("Assignment can not be made without violating hard constrants");
+			throw new HardConstraintViolationException("Assignment can not be made wiohout violating hard constrants");
 		
-		System.out.println(assign.toString());
-			
-			
-		
-		//hillClimb();
+    return assign;
 	}
 	
 

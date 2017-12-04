@@ -1,3 +1,4 @@
+import optimizer.*;
 import common.*;
 import parser.*;
 import scheduler.Scheduler;
@@ -21,10 +22,14 @@ public class Main {
 	// setup handler for logging
     System.setProperty( "java.util.logging.SimpleFormatter.format",
         "[%1$tF %1$tT] [%4$s] [%2$s]  %5$s%6$s%n");
+    for( Handler h : Logger.getLogger("").getHandlers() ) {
+      // Remove the default handler to get rid of duplicate infos
+      Logger.getLogger("").removeHandler(h);
+    }
     Handler h = new ConsoleHandler();
     h.setLevel(Level.ALL);
     Logger.getLogger("").addHandler( h );
-    Logger.getLogger("").setLevel(Level.WARNING);
+    Logger.getLogger("").setLevel(Level.INFO);
     log = Logger.getLogger("Main");
 
     loadConfig();
@@ -46,27 +51,27 @@ public class Main {
     
     try{
       i.finalizeInstance();
-      System.out.println(i.toString());
-      Scheduler s = new Scheduler(i);
-      // The general idea:
-      // Assignment best = null;
-      // long start = System.currentTimeMillis();
-      // int i;
-      // for( i = 0; i < maxRuns; ++i ) {
-      //   Assignment assign = s.makeSchedule(); // Or otherwise get assignment from scheduler
-      //   Optimizer optimizer = new Optimizer( assign, minfilled, pref, pair, secdiff );
-      //   Assignment optimized = optimizer.optimize();
-      //   if( best == null || optimized.eval() < best.eval() ) {
-      //     best = optimized;
-      //   }
-      //
-      //   if( timed && (( System.currentTimeMillis() - startTime )/1000) >= timeout ) {
-      //     log.warning( "Search has run past the configured timeout; terminating with the current best solution." )
-      //     break;
-      //   }
-      // }
-      // System.out.println( "The best solution after " + (i + 1) + " runs is:" );
-      // System.out.println( best.toString() );
+      log.info( "Running search on instance:\n" + i.toString() );
+      Assignment best = null;
+      long startTime = System.currentTimeMillis();
+      int ctr;
+      for( ctr = 0; ctr < maxRuns; ++ctr ) {
+        log.info( "Starting iteration " + ctr );
+        Scheduler s = new Scheduler(i);
+        Assignment assign = s.makeSchedule(); // Or otherwise get assignment from scheduler
+        Optimizer optimizer = new Optimizer( assign, minfilled, pref, pair, secdiff );
+        Assignment optimized = optimizer.optimize();
+        if( best == null || optimized.eval() < best.eval() ) {
+          best = optimized;
+        }
+      
+        if( timed && (( System.currentTimeMillis() - startTime )/1000) >= timeout ) {
+          log.warning( "Search has run past the configured timeout; terminating with the current best solution." );
+          break;
+        }
+      }
+      System.out.println( "The best solution after " + ctr + " runs is:" );
+      System.out.println( best.toString() );
     }
     catch( HardConstraintViolationException e ) {
       System.out.println( String.format( "Unable to find a solution for the given instance! Reason: %s", e.getMessage() ) );
