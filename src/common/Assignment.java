@@ -34,13 +34,6 @@ public class Assignment {
   }
 
   private void verifyMax( Slot slot ) throws HardConstraintViolationException {
-	// hash the 'dummy' slot to find the real slot so we can check the max assign value
-	int val = slot.hashCode();
-	
-	slot = instance.getCourseSlotsHash().stream().filter(s -> s.hashCode() == val).findFirst().orElse(null);
-	if (slot == null) {
-		slot = instance.getLabSlotsHash().stream().filter(s -> s.hashCode() == val).findFirst().orElse(null);
-	}
     if( this.assignments.get( slot ).size() == slot.getMaxAssign() ) {
       throw new HardConstraintViolationException( "Assignment would cause slot to be over capacity." );
     }
@@ -72,8 +65,14 @@ public class Assignment {
   }
   
   public void add(Slot slot, Assignable assignment) throws HardConstraintViolationException {
-	  ArrayList<Assignable> currentList = this.assignments.get(slot);
-
+	ArrayList<Assignable> currentList = this.assignments.get(slot);
+	// hash the 'dummy' slot to find the real slot so we can check the max assign value
+	int val = slot.hashCode();
+	
+	slot = instance.getCourseSlotsHash().stream().filter(s -> s.hashCode() == val).findFirst().orElse(null);
+	if (slot == null) {
+		slot = instance.getLabSlotsHash().stream().filter(s -> s.hashCode() == val).findFirst().orElse(null);
+	}
     // Check constraints
     verifyIncomp( assignment, currentList );
     verifyUnwanted( assignment, slot );
