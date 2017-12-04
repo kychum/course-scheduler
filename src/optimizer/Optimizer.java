@@ -55,8 +55,8 @@ public class Optimizer{
   }
 
   // Note that the current solution lacks randomness
-  public void optimize() {
-    if( assignment.eval() == 0 ) return;
+  public Assignment optimize() {
+    if( assignment.eval() == 0 ) return assignment;
 
     log.info( "Beginning optimization" );
     HashSet<Slot> min = assignment.getMinViolations();
@@ -173,6 +173,8 @@ public class Optimizer{
 
       log.finer( String.format("At the end of the loop, min[%d], pair[%d], pref[%d], secdiff[%d]", min.size(), pair.size(), pref.size(), secdiff.size()));
     }
+
+    return assignment;
   }
 
   enum Operation { MOVE, MOVE_SECOND, SWAP, SWAP_SECOND, NONE }
