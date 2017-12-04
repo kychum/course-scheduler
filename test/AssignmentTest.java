@@ -1,6 +1,7 @@
 import common.*;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
+import java.util.HashSet;
 
 class AssignmentTest{
   @Test
@@ -136,5 +137,36 @@ class AssignmentTest{
     HardConstraintViolationException e = assertThrows( HardConstraintViolationException.class,
         () -> a.swap( c1, l1 ), "Swap should have caused error due to differing slot types" );
     assertEquals( "Could not swap lab and course due to a corresponding slot not existing", e.getMessage() );
+  }
+
+  @Test
+  @DisplayName( "Test getting slotmin violations" )
+  void testSlotMin() {
+    Instance i = new Instance();
+    Slot s1 = new Slot( "MO", "8:00", 2, 1, false );
+    Slot s2 = new Slot( "TU", "8:00", 2, 1, false );
+    Slot s3 = new Slot( "MO", "10:00", 2, 1, true );
+    Slot s4 = new Slot( "FR", "12:00", 2, 1, true );
+    Course c1 = new Course( "CPSC", 100, 1 );
+    Course c2 = new Course( "CPSC", 101, 1 );
+    Lab l1 = new Lab( "CPSC", 100, 1, 1, false );
+    Lab l2 = new Lab( "CPSC", 101, 1, 1, true );
+    i.addCourseSlot( s1 );
+    i.addCourseSlot( s2 );
+    i.addLabSlot( s3 );
+    i.addLabSlot( s4 );
+    i.addCourse( c1 );
+    i.addCourse( c2 );
+    i.addLab( l1 );
+    i.addLab( l2 );
+    Assignment a = new Assignment( i );
+    a.add( c1, s1 );
+    a.add( c2, s1 );
+    a.add( l1, s3 );
+    a.add( l2, s3 );
+    HashSet<Slot> min = a.getMinViolations();
+    assertTrue( min.size() == 2, "There should be one lab slot and one course slot having min violations" );
+    assertTrue( min.contains( s2 ), "The second course slot should be in violation" );
+    assertTrue( min.contains( s4 ), "The second lab slot should be in violation" );
   }
 }

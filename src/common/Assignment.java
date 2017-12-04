@@ -223,7 +223,7 @@ public class Assignment {
 
   public HashSet<Slot> getMinViolations() {
     HashSet<Slot> out = assignments.keySet().stream()
-      .filter( slot -> slot.getMinAssign() < assignments.get(slot).size() )
+      .filter( slot -> slot.getMinAssign() > assignments.get(slot).size() )
       .collect( Collectors.toCollection( HashSet::new ) );
     return out;
   }
