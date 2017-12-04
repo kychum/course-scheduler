@@ -50,8 +50,8 @@ public class Main {
     // finalize the instance, this adds relevant hard constraints from the assignment spec
     
     try{
-      i.finalizeInstance();
       log.info( "Running search on instance:\n" + i.toString() );
+      i.finalizeInstance();
       Assignment best = null;
       long startTime = System.currentTimeMillis();
       int ctr;
