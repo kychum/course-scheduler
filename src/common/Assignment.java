@@ -12,6 +12,22 @@ public class Assignment {
   private TreeMap<Assignable, Slot> courseAssignments;
   private Instance instance;
   private static Logger log = Logger.getLogger("Assignment");
+  private int[] weights;
+
+  public Assignment(Assignment other) {
+    this.instance = other.instance;
+    other.courseAssignments.forEach( (a, s) -> courseAssignments.put( a, s ) );
+    other.assignments.forEach( (s, hs) -> {
+      HashSet<Assignable> cloned = new HashSet<>();
+      hs.forEach( a -> cloned.add(a));
+      assignments.put( s, cloned );
+    });
+    this.weights = other.weights;
+  }
+
+  public void setWeights(int min, int pref, int pair, int sec){
+    weights = new int[]{min, pref, pair, sec};
+  }
 
   public Assignment(Instance instance) {
     this.instance = instance;
@@ -251,6 +267,42 @@ public class Assignment {
     return out;
   }
 
+  public Assignment clone() {
+    return new Assignment(this);
+  }
+
+  // Get the difference in eval for a swap
+  // Remark: this will probably be slow.
+  public int stageAction( Assignable a1, Assignable a2 ) {
+    Assignment clone = clone();
+    try{
+      clone.swap(a1, a2);
+      return eval() - clone.eval();
+    }
+    catch( HardConstraintViolationException e ) {
+      // Do nothing;
+    }
+    return 0;
+  }
+
+  // Get the difference in eval for a move
+  // Remark: this will probably be slow.
+  public int stageAction( Assignable assign, Slot slot ) {
+    Assignment a2 = clone();
+    try{
+      a2.move( assign, slot );
+      return eval() - a2.eval();
+    }
+    catch( HardConstraintViolationException e ) {
+      // Do nothing;
+    }
+    return 0;
+  }
+
+  public int eval() {
+    return eval( weights[0], weights[1], weights[2], weights[3] );
+  }
+
   public int eval( int w_minfilled, int w_pref, int w_pair, int w_secdiff ) {
     int minfilled = evalMinFilled();
     int pref = evalPref();
@@ -276,30 +328,4 @@ public class Assignment {
     return getSectionViolations().size();
   }
 
-  // Unordered tuple
-  public class Tuple<F, S> {
-    F first;
-    S second;
-
-    public Tuple(F f, S s) {
-      first = f;
-      second = s;
-    }
-
-    @Override
-    public boolean equals( Object o ) {
-      if( o instanceof Tuple ) {
-        Tuple t = ((Tuple) o);
-        return (first.equals( t.first ) && second.equals( t.second )) ||
-          (first.equals(t.second) && second.equals( t.first ));
-      }
-
-      return false;
-    }
-
-    @Override
-    public int hashCode() {
-      return first.hashCode() ^ second.hashCode();
-    }
-  }
 }

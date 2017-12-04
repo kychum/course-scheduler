@@ -6,7 +6,7 @@ TESTJARS="test/jars/junit-jupiter-api-5.1.0-M1.jar:test/jars/apiguardian-api-1.0
 
 all:
 	mkdir -p bin
-	javac $(SOURCES) -d "bin" -cp "bin"
+	javac $(SOURCES) -Xlint:unchecked -d "bin" -cp "bin"
 
 test: all
 	mkdir -p test/bin
