@@ -89,15 +89,15 @@ public class Constraints {
     return unwanted.containsKey( assign ) && unwanted.get( assign ).contains( slot );
   }
 
-  HashMap<Assignable, HashSet<Assignable>> getIncomp() {
+  public HashMap<Assignable, HashSet<Assignable>> getIncomp() {
     return incomp;
   }
 
-  HashMap<Assignable, HashSet<Assignable>> getPair() {
+  public HashMap<Assignable, HashSet<Assignable>> getPair() {
     return pair;
   }
 
-  HashMap<Assignable, HashSet<Slot>> getUnwanted() {
+  public HashMap<Assignable, HashSet<Slot>> getUnwanted() {
     return unwanted;
   }
 

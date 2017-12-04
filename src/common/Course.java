@@ -31,6 +31,10 @@ public class Course extends Assignable {
     return cpsc913;
   }
 
+  public boolean isLab() {
+    return false;
+  }
+
   /**
    * Produces the string representation of a course object.
    *
