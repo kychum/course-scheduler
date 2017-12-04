@@ -140,6 +140,10 @@ Constraints constraints;
 		}
 	}
 	
+	public Assignment getAssignment() {
+		return assign;
+	}
+	
 	// hard constraints checker methods
 	
 	
