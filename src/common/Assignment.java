@@ -37,7 +37,6 @@ public class Assignment {
   public Assignment(Instance instance) {
     this.instance = instance;
     assignments = new TreeMap<Slot, HashSet<Assignable>>();
-    assignments.put( Slot.getSpecialSlot(), new HashSet<>() );
     for( Slot s : instance.getCourseSlots() ) {
       assignments.put( s, new HashSet<Assignable>() );
     }
@@ -46,6 +45,9 @@ public class Assignment {
     }
     courseAssignments = new TreeMap<Assignable, Slot>();
 
+    if( instance.getPartAssign().keySet().stream().filter( assn -> assn.getCourseNum() == 813 || assn.getCourseNum() == 913 ).count() > 0 ) {
+      assignments.put( Slot.getSpecialSlot(), new HashSet<>() );
+    }
     instance.getPartAssign().forEach( (assign, slot) -> {
       add( slot, assign );
     });
