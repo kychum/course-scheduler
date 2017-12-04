@@ -118,10 +118,10 @@ public class Instance{
       }
     }
 
-    if( courses.stream().anyMatch( c -> c.getCourseNum() == 313 ) ){
+    if( courses.stream().anyMatch( c -> c.getCourseNum() == 313 ) ) {
       add813();
     }
-    if( courses.stream().anyMatch( c -> c.getCourseNum() == 413 ) ){
+    if( courses.stream().anyMatch( c -> c.getCourseNum() == 413 ) ) {
       add913();
     }
 
@@ -165,13 +165,16 @@ public class Instance{
 
     // Check partial assignments
     partAssign.forEach( (course, slot) -> {
+    	
+    	System.out.println("ZPMG " + course.toString());
+    	
       if( courses.contains( course ) && course.getCourseNum() != 813 && course.getCourseNum() != 913 ) {
-        if( !courseSlots.contains( slot ) ) {
+        if( !courseSlots.contains( slot.toArray()[0]) ) {
           throw new HardConstraintViolationException( "Course is not assigned to a course slot" );
         }
       }
       else if( labs.contains( course ) ) {
-        if( !labSlots.contains( slot ) ) {
+        if( !labSlots.contains( slot.toArray()[0] ) ) {
           throw new HardConstraintViolationException( "Lab is not assigned to a lab slot" );
         }
       }
