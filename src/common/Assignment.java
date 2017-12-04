@@ -37,6 +37,7 @@ public class Assignment {
   public Assignment(Instance instance) {
     this.instance = instance;
     assignments = new TreeMap<Slot, HashSet<Assignable>>();
+    assignments.put( Slot.getSpecialSlot(), new HashSet<>() );
     for( Slot s : instance.getCourseSlots() ) {
       assignments.put( s, new HashSet<Assignable>() );
     }
