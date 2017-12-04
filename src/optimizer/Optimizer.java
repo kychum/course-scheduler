@@ -8,6 +8,7 @@ import common.Course;
 import common.Slot;
 import common.Lab;
 import java.util.stream.Collectors;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,7 @@ public class Optimizer{
   }
 
   enum ConstraintType {
+    NONE,
     MIN,
     PAIR,
     PREF,
@@ -57,28 +59,28 @@ public class Optimizer{
     // In theory trying to resolve the two largest evals at once would provide
     // the best gain (for a greedy algorithm), but that seems to be more complex
     // than initially thought, so we'll go with the biggest for now.
-    ConstraintType biggest;
+    ConstraintType biggest = ConstraintType.NONE;
     if( sortedPref.size() > 0 ) {
       int prefVal = pref.get( sortedPref.get( 0 ) ) * w_pref;
       int[] vals = { w_minfilled, prefVal, w_pair, w_secdiff };
       int maxVal = Arrays.stream( vals ).max().getAsInt();
       if( prefVal == maxVal )
-        biggest = PREF;
+        biggest = ConstraintType.PREF;
       if( w_minfilled == maxVal && min.size() > 0 )
-        biggest = MIN;
+        biggest = ConstraintType.MIN;
       if( w_pair == maxVal && pair.size() > 0 )
-        biggest = PAIR;
+        biggest = ConstraintType.PAIR;
       if( w_secdiff == maxVal && secdiff.size() > 0 )
-        biggest = SECTION;
+        biggest = ConstraintType.SECTION;
     } else {
       int[] vals = { w_minfilled, w_pair, w_secdiff };
       int maxVal = Arrays.stream( vals ).max().getAsInt();
       if( w_minfilled == maxVal && min.size() > 0 )
-        biggest = MIN;
+        biggest = ConstraintType.MIN;
       if( w_pair == maxVal && pair.size() > 0 )
-        biggest = PAIR;
+        biggest = ConstraintType.PAIR;
       if( w_secdiff == maxVal && secdiff.size() > 0 )
-        biggest = SECTION;
+        biggest = ConstraintType.SECTION;
     }
 
     // Try to fix the violation
