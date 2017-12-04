@@ -50,6 +50,7 @@ Constraints constraints;
 	private void initialize() {
 		boolean assigned = false;
 		int courseSlotSize = inst.getCourseSlots().size();
+		int labSlotSize = inst.getLabSlots().size();
 		for (Course c : inst.getCourses()) {
 			assigned=false;
 			while(!assigned) {	// Might need an additional limiter to the while loop.
@@ -57,17 +58,32 @@ Constraints constraints;
 				Slot courseSlot = inst.getCourseSlots().get(nextSlotIndex);
 				if (maintainsHardConstraints(courseSlot, c)) {
 					inst.addPartAssign(c, courseSlot);
-					System.out.println("Assigned course " + c.toString() + " to " + courseSlot.toString() + "." ); // debug message
+					System.out.println("DEBUG: Assigned course " + c.toString() + " to " + courseSlot.toString() + "." ); // debug message
 					assigned=true;
 					// TODO assign course to slot
 					
 				}
 			}
 		}
-		
+		for (Lab l : inst.getLabs()) {
+			assigned=false;
+			while(!assigned) {	// Might need an additional limiter to the while loop.
+				int nextSlotIndex = rand.nextInt(labSlotSize);
+				Slot labSlot = inst.getLabSlots().get(nextSlotIndex);
+				if (maintainsHardConstraints(labSlot, l)) {
+					inst.addPartAssign(l, labSlot);
+					System.out.println("DEBUG: Assigned course " + l.toString() + " to " + labSlot.toString() + "." ); // debug message
+					assigned=true;
+					// TODO assign course to slot
+					
+				}
+			}
+		}
+		System.out.println("DEBUG: finished init.");
 	}
 	
 	private void hillClimb() {
+		int courseSlotSize = inst.getCourseSlots().size();
 	}
 	
 	/**
@@ -84,7 +100,7 @@ Constraints constraints;
 			isValid = true;
 		} catch (Exception e) {
 			// TODO: handle exception
-			System.out.println("Attempted assignment " + a.toString() + " to " + s.toString() + " failed.");
+			System.out.println("DEBUG: Attempted assignment " + a.toString() + " to " + s.toString() + " failed.");
 			isValid = false;
 		}
 		

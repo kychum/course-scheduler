@@ -51,6 +51,10 @@ public class Instance{
     return new ArrayList<Course>( courses );
   }
 
+  public ArrayList<Lab> getLabs(){
+	  return new ArrayList<Lab>( labs );
+  }
+  
   public boolean hasCourse( Assignable c ) {
     return courses.contains( c );
   }
