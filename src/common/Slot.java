@@ -184,6 +184,10 @@ public class Slot implements Comparable<Slot> {
     return specialSlot;
   }
 
+  public boolean isLabSlot() {
+    return isLab;
+  }
+
   /**
    * Transforms the slot into a string.
    *
