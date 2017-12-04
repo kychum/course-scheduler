@@ -51,6 +51,14 @@ public class Instance{
     return new ArrayList<Course>( courses );
   }
 
+  public boolean hasCourse( Assignable c ) {
+    return courses.contains( c );
+  }
+
+  public boolean hasLab( Assignable l ) {
+    return labs.contains( l );
+  }
+
   public Constraints getConstraints() {
     return constraints;
   }

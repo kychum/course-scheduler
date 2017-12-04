@@ -65,21 +65,41 @@ public class Assignment {
   }
   
   public void add(Slot slot, Assignable assignment) throws HardConstraintViolationException {
-	ArrayList<Assignable> currentList = this.assignments.get(slot);
-	// hash the 'dummy' slot to find the real slot so we can check the max assign value
-	int val = slot.hashCode();
-	
-	slot = instance.getCourseSlotsHash().stream().filter(s -> s.hashCode() == val).findFirst().orElse(null);
-	if (slot == null) {
-		slot = instance.getLabSlotsHash().stream().filter(s -> s.hashCode() == val).findFirst().orElse(null);
-	}
+    ArrayList<Assignable> currentList = this.assignments.get(slot);
+    // hash the 'dummy' slot to find the real slot so we can check the max assign value
+    int val = slot.hashCode();
+
+    Slot instanceSlot;
+    if( slot.isLabSlot() ) {
+      instanceSlot = instance.getLabSlotsHash().stream().filter(s -> s.hashCode() == val).findFirst().orElse(null);
+      if( !instance.hasLab( assignment ) ){
+        throw new HardConstraintViolationException( "Attempting to assign a lab that does not exist" );
+      }
+    }
+    else{
+      instanceSlot = instance.getCourseSlotsHash().stream().filter(s -> s.hashCode() == val).findFirst().orElse(null);
+      if( !instance.hasCourse( assignment ) && !assignment.equals( Course.getCPSC813() ) &&
+          !assignment.equals( Course.getCPSC913() ) ) {
+        throw new HardConstraintViolationException( "Attempting to assign a course that does not exist" );
+      }
+    }
+
+    if( instanceSlot == null ) {
+      if( slot.equals( Slot.getSpecialSlot() ) ) {
+        instanceSlot = Slot.getSpecialSlot();
+      }
+      else {
+        throw new HardConstraintViolationException( "Attempting to assign class to a slot that doesn't exist." );
+      }
+    }
+
     // Check constraints
     verifyIncomp( assignment, currentList );
-    verifyUnwanted( assignment, slot );
-    verifyMax( slot );
+    verifyUnwanted( assignment, instanceSlot );
+    verifyMax( instanceSlot );
 
 	  currentList.add(assignment);
-    this.courseAssignments.put(assignment, slot);
+    this.courseAssignments.put(assignment, instanceSlot);
   }
   
   public void remove(Slot slot, Assignable assignment) {
