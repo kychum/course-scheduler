@@ -33,15 +33,17 @@ Constraints constraints;
 		assign = new Assignment(i);
 		this.constraints = this.inst.getConstraints();
 		makeSchedule();
-		//Optimizer o = new Optimizer(assign);
-		//o.optimize();
+    System.out.println( assign.toString() );
+		Optimizer o = new Optimizer(assign);
+		o.optimize();
+    System.out.println( o.getAssignment().toString() );
 	}
 
 
 
 	public void makeSchedule() {
 		
-		rand = new Random(0);
+		rand = new Random();
 		initialize();
 		//hillClimb();
 	}

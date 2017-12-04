@@ -223,7 +223,7 @@ public class Assignment {
       .mapToInt( a -> a.toString().length() )
       .max().orElse( 0 );
     courseAssignments.forEach( (assn, slot) -> {
-      out.append( String.format( "%-" + longest + "s : %s\n", assn.toString(), slot.toString() ) );
+      out.append( String.format( "%-" + longest + "s : %s\n", assn.toString(), slot.toString( true ) ) );
     } );
     return out.toString();
   }

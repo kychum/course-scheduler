@@ -296,14 +296,14 @@ public class Instance{
       .forEach( a -> {
         unwanted.get(a).stream()
           .sorted()
-          .forEach( s -> out.append( a.toString() + ", " + s.toString() + "\n" ) );
+          .forEach( s -> out.append( a.toString() + ", " + s.toString( true ) + "\n" ) );
       });
     out.append("\n");
 
     out.append("Preferences:\n");
     preferences.stream()
       .sorted()
-      .forEach( p -> out.append( String.format("%s, %s, %d\n", p.slot.toString(), p.course.toString(), p.value ) ) );
+      .forEach( p -> out.append( String.format("%s, %s, %d\n", p.slot.toString( true ), p.course.toString(), p.value ) ) );
     out.append("\n");
 
     out.append("Pair:\n");
@@ -321,7 +321,7 @@ public class Instance{
     out.append("Partial assignments:\n");
     partAssign.keySet().stream()
       .sorted()
-      .forEach( assn -> out.append( assn.toString() + ", " + partAssign.get( assn ).toString() + "\n" ) );
+      .forEach( assn -> out.append( assn.toString() + ", " + partAssign.get( assn ).toString( true ) + "\n" ) );
     out.append("\n");
 
     return out.toString();
