@@ -2,6 +2,7 @@ import parser.Parser;
 import common.Instance;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.*;
 import org.junit.jupiter.params.provider.*;
@@ -18,6 +19,7 @@ class ParserTest{
   }
 
   @ParameterizedTest
+  @DisplayName( "Parse given example files" )
   @ValueSource( strings = { "example1", "gehtnicht1.txt", "gehtnicht2.txt", "gehtnicht3.txt",
     "gehtnicht4.txt", "gehtnicht5.txt", "gehtnicht6.txt", "gehtnicht7.txt", "gehtnicht8.txt",
     "gehtnicht9.txt", "gehtnicht10.txt", "gehtnicht11.txt", "gehtnicht12.txt", "minnumber.txt",

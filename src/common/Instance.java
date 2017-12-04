@@ -4,8 +4,10 @@ import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 public class Instance{
+  private static Logger log = Logger.getLogger( "Instance" );
   private String name;
   private HashSet<Course> courses;
   private HashSet<Lab> labs;
@@ -53,8 +55,14 @@ public class Instance{
     this.labs.add( lab );
   }
 
+  private static Slot invalidSlot = new Slot( "TU", "11:00", 0, 0, false );
   public void addCourseSlot( Slot slot ) {
-    this.courseSlots.add( slot );
+    if( slot.equals( invalidSlot ) ) {
+      log.warning( "No courses can be scheduled at TU, 11:00. Ignoring this entry." );
+    }
+    else {
+      this.courseSlots.add( slot );
+    }
   }
 
   public void addLabSlot( Slot slot ) {
@@ -78,6 +86,10 @@ public class Instance{
       this.partAssign.put( assn, new HashSet<Slot>() );
     }
     return this.partAssign.get( assn ).add( slot );
+  }
+
+  HashMap<Assignable, HashSet<Slot>> getPartAssign() {
+    return partAssign;
   }
 
   public boolean addPreference( Assignable assn, Slot slot, int value ) {
@@ -135,15 +147,23 @@ public class Instance{
       throw new HardConstraintViolationException( "There are not enough slots for the number of labs given." );
     }
 
+    // Check evening courses
     int maxEveningCourse = courseSlots.stream().filter( Slot::isEveningSlot ).mapToInt( s -> s.getMaxAssign() ).sum();
     int maxEveningLab = labSlots.stream().filter( Slot::isEveningSlot ).mapToInt( s -> s.getMaxAssign() ).sum();
-    int eveningCourses = courses.stream().filter( c -> String.valueOf( c.getSection() ).charAt(0) == '9' ).mapToInt( s -> 1 ).sum();
-    int eveningLabs = labs.stream().filter( l -> String.valueOf( l.getCourseSection() ).charAt(0) == '9' ).mapToInt( s -> 1 ).sum();
+    long eveningCourses = courses.stream().filter( Course::isEveningClass ).count();
+    long eveningLabs = labs.stream().filter( Lab::isEveningClass ).count();
     if( maxEveningCourse < eveningCourses ) {
       throw new HardConstraintViolationException( "There are not enough evening slots for the number of courses given." );
     }
     if( maxEveningLab < eveningLabs ) {
       throw new HardConstraintViolationException( "There are not enough evening slots for the number of labs given." );
+    }
+
+    // Check 500-level courses
+    long level500Count = courses.stream().filter( Course::is500Level ).count();
+    int numCourseSlots = courseSlots.size();
+    if( level500Count > numCourseSlots ) {
+      throw new HardConstraintViolationException( "There are not enough slots to schedule all 500-level courses." );
     }
 
     // Check partial assignments
