@@ -37,7 +37,8 @@ public class Main {
     Logger.getLogger("").addHandler( h );
     Logger.getLogger("").setLevel(Level.INFO);
     log = Logger.getLogger("Main");
-
+    
+    // load the config containing weights
     loadConfig();
 
     // create a parser so we can begin reading input file
@@ -84,6 +85,7 @@ public class Main {
     }
   }
 
+  // for loading the config.ini file
   static void loadConfig() {
     BufferedReader reader;
     try{

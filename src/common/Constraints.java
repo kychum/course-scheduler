@@ -46,7 +46,8 @@ public class Constraints {
   }
 
   public boolean addIncomp(Assignable a1, Assignable a2) {
-	  // Returns true if adding constraint succeeded, false if failed
+	// Returns true if adding constraint succeeded, false if failed
+	// Should only fail if the incomp actually exists, or catastrophic error
     if( !incomp.containsKey( a1 ) ) {
       incomp.put( a1, new HashSet<Assignable>() );
     }
