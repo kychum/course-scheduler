@@ -28,6 +28,10 @@ public class Assignment {
   public TreeMap<Slot, ArrayList<Assignable>> getAssignments() {
     return assignments;
   }
+  
+  public TreeMap<Assignable, Slot> getCourseAssignments(){
+	  return courseAssignments;
+  }
 
   public void setAssignments(TreeMap<Slot, ArrayList<Assignable>> assignments) {
     this.assignments = assignments;

@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 import common.*;
 
@@ -51,17 +52,30 @@ Constraints constraints;
 		boolean assigned = false;
 		int courseSlotSize = inst.getCourseSlots().size();
 		int labSlotSize = inst.getLabSlots().size();
+		
+		// NOTE: Current iteration is using addPartAssign to the instance to simulate adding an actual assignment, as a quick-and-dirty sort of thing.
 		for (Course c : inst.getCourses()) {
 			assigned=false;
+			TreeMap curAssignments = assign.getCourseAssignments();
 			while(!assigned) {	// Might need an additional limiter to the while loop.
-				int nextSlotIndex = rand.nextInt(courseSlotSize);
-				Slot courseSlot = inst.getCourseSlots().get(nextSlotIndex);
-				if (maintainsHardConstraints(courseSlot, c)) {
-					inst.addPartAssign(c, courseSlot);
-					System.out.println("DEBUG: Assigned course " + c.toString() + " to " + courseSlot.toString() + "." ); // debug message
-					assigned=true;
-					// TODO assign course to slot
-					
+				for(int i = 0; i<curAssignments.size(); i++)
+				{
+					if (curAssignments.containsKey(c)){
+						assigned=true;
+						break;
+					}
+				}
+				if (!assigned) {
+					int nextSlotIndex = rand.nextInt(courseSlotSize);
+					Slot courseSlot = inst.getCourseSlots().get(nextSlotIndex);
+					if (maintainsHardConstraints(courseSlot, c)) {
+						assign.add(courseSlot, c);
+						System.out.println("DEBUG: Assigned course " + c.toString() + " to " + courseSlot.toString() + "." ); // debug message
+						assigned=true;					
+					}
+					else {
+						System.out.println("DEBUG: Failed to assign course " + c.toString() + " to " + courseSlot.toString() + ".");
+					}
 				}
 			}
 		}
@@ -71,11 +85,9 @@ Constraints constraints;
 				int nextSlotIndex = rand.nextInt(labSlotSize);
 				Slot labSlot = inst.getLabSlots().get(nextSlotIndex);
 				if (maintainsHardConstraints(labSlot, l)) {
-					inst.addPartAssign(l, labSlot);
+					assign.add(labSlot, l);
 					System.out.println("DEBUG: Assigned course " + l.toString() + " to " + labSlot.toString() + "." ); // debug message
-					assigned=true;
-					// TODO assign course to slot
-					
+					assigned=true;					
 				}
 			}
 		}
@@ -83,7 +95,16 @@ Constraints constraints;
 	}
 	
 	private void hillClimb() {
-		int courseSlotSize = inst.getCourseSlots().size();
+		List courseSlots = inst.getCourseSlots();
+		List labSlots = inst.getLabSlots();
+		
+		int courseSlotSize = courseSlots.size();
+		int labSlotSize = labSlots.size();
+		
+		int maxHillClimb = 5; // change as necessary
+		
+		
+		
 	}
 	
 	/**
@@ -94,17 +115,17 @@ Constraints constraints;
 	 */
 	private boolean maintainsHardConstraints(Slot s, Assignable a) {
 		boolean isValid = false;
-		Instance tempInst = inst;
+		Assignment tempAssign = assign;
 		try {
-			tempInst.addPartAssign(a, s);
+			tempAssign.add(s, a);
+			// TODO: Figure out why exception thrown within Assignment class terminates entire program.
 			isValid = true;
-		} catch (Exception e) {
-			// TODO: handle exception
+			return isValid;
+		} catch (HardConstraintViolationException e) {
 			System.out.println("DEBUG: Attempted assignment " + a.toString() + " to " + s.toString() + " failed.");
 			isValid = false;
+			return isValid;
 		}
-		
-		return isValid;
 	}
 	
 	// hard constraints checker methods
