@@ -37,7 +37,7 @@ public class Parser{
         String coursePattern = "\\s*\\w{4}\\s+\\d{3}\\s+LEC\\s+\\d\\d?\\s*";
         String slotSimplePattern = "\\s*(MO|TU|FR)\\s*,\\s*\\d+:\\d+\\s*"; 
         String labPattern = "\\s*\\w{4}\\s+\\d{3}\\s+(LEC\\s+\\d+\\s+)?(TUT|LAB)\\s+\\d\\d?\\s*";
-        String notCompatPattern = String.format("(%s\\s*,\\s*%s|%s\\s*,\\s*%s|%s\\s*,\\s*%s|%s\\s*,\\    s*%s)", 
+        String notCompatPattern = String.format("(%s\\s*,\\s*%s|%s\\s*,\\s*%s|%s\\s*,\\s*%s|%s\\s*,\\s*%s)", 
                                                 coursePattern, coursePattern,
                                                 coursePattern, labPattern,
                                                 labPattern, coursePattern,
@@ -45,6 +45,10 @@ public class Parser{
         String unwantedPattern = String.format("(%s\\s*,\\s*%s|%s\\s*,\\s*%s)", 
                                                coursePattern, slotSimplePattern, 
                                                labPattern, slotSimplePattern);
+        String prefPattern = String.format("%s\\s*,\\s*(%s|%s)\\s*,\\s*\\d+", slotSimplePattern, coursePattern, labPattern);
+        String pairPattern = notCompatPattern;
+        String partialPattern = unwantedPattern;
+        
 	    switch( this.mode ) {
 	      case NAME:
 	    	instance.setName( line );
@@ -82,45 +86,65 @@ public class Parser{
 	    	}
 	        break;
 	      case NOTCOMPAT:
-	        Assignable[] ncAssigns = Arrays.stream( tokenize( line, "," ) )
-	          .map( s -> parseAssignable( s ) )
-	          .toArray( Assignable[]::new );
-	        if( !instance.addIncomp( ncAssigns[0], ncAssigns[1] ) ) {
-	          log.warning( String.format( "Failed to set [%s] and [%s] as incompatible. Was the entry already present?", ncAssigns[0].toString(), ncAssigns[1].toString() ) );
-	        }
+	    	if (line.matches(notCompatPattern)) {
+		        Assignable[] ncAssigns = Arrays.stream( tokenize( line, "," ) )
+		          .map( s -> parseAssignable( s ) )
+		          .toArray( Assignable[]::new );
+		        if( !instance.addIncomp( ncAssigns[0], ncAssigns[1] ) ) {
+		          log.warning( String.format( "Failed to set [%s] and [%s] as incompatible. Was the entry already present?", ncAssigns[0].toString(), ncAssigns[1].toString() ) );
+		        }
+	    	} else {
+	    		log.warning(String.format("Skipping malformed NotCompat line [%s]", line));
+	    	}
 	        break;
 	      case UNWANTED:
-	        String[] uwParts = tokenize( line, ",", 2 );
-	        Assignable uwAssigns = parseAssignable( uwParts[0] );
-	        Slot uwSlot = parseSlot( uwParts[1], uwParts[0].contains("LAB") || uwParts[0].contains("TUT") );
-	        instance.addUnwanted( uwAssigns, uwSlot );
+	    	if (line.matches(unwantedPattern)) {
+		        String[] uwParts = tokenize( line, ",", 2 );
+		        Assignable uwAssigns = parseAssignable( uwParts[0] );
+		        Slot uwSlot = parseSlot( uwParts[1], uwParts[0].contains("LAB") || uwParts[0].contains("TUT") );
+		        instance.addUnwanted( uwAssigns, uwSlot );
+	    	} else {
+	    		log.warning(String.format("Skipping malformed Unwanted line [%s]", line));
+	    	}
 	        break;
 	      case PREF:
-	        String[] prefParts = tokenize( line, "," );
-	        Assignable prefAssigns = parseAssignable( prefParts[2] );
-	        boolean prefIsLab = prefParts[2].contains("LAB") || prefParts[2].contains("TUT");
-	        Slot prefSlot = parseSlot( String.join( ",", prefParts[0], prefParts[1] ), prefIsLab );
-	        int prefValue = Integer.parseInt( prefParts[3] );
-	        if( !instance.addPreference( prefAssigns, prefSlot, prefValue ) ){
-	          log.warning( String.format( "Ignoring preference [%d] for class [%s] to slot [%s]. Is the slot a valid slot? Caching for later.", prefValue, prefAssigns.toString(), prefSlot.toString() ));
-	          prefCache.add(prefParts);
-	        }
+	    	if (line.matches(prefPattern)) {
+		        String[] prefParts = tokenize( line, "," );
+		        Assignable prefAssigns = parseAssignable( prefParts[2] );
+		        boolean prefIsLab = prefParts[2].contains("LAB") || prefParts[2].contains("TUT");
+		        Slot prefSlot = parseSlot( String.join( ",", prefParts[0], prefParts[1] ), prefIsLab );
+		        int prefValue = Integer.parseInt( prefParts[3] );
+		        if( !instance.addPreference( prefAssigns, prefSlot, prefValue ) ){
+		          log.warning( String.format( "Ignoring preference [%d] for class [%s] to slot [%s]. Is the slot a valid slot? Caching for later.", prefValue, prefAssigns.toString(), prefSlot.toString() ));
+		          prefCache.add(prefParts);
+		        }
+	    	} else {
+	    		log.warning(String.format("Skipping malformed Preference line [%s]", line));
+	    	}
 	        break;
 	      case PAIR:
-	        Assignable[] pairAssigns = Arrays.stream( tokenize( line, "," ) )
-	          .map( s -> parseAssignable( s ) )
-	          .toArray( Assignable[]::new );
-	        if( !instance.addPair( pairAssigns[0], pairAssigns[1] ) ) {
-	          log.warning( String.format( "Unable to set [%s] and [%s] as paired. Was it already defined earlier in the file?", pairAssigns[0], pairAssigns[1] ) );
-	        }
+	    	if (line.matches(pairPattern)) {
+		        Assignable[] pairAssigns = Arrays.stream( tokenize( line, "," ) )
+		          .map( s -> parseAssignable( s ) )
+		          .toArray( Assignable[]::new );
+		        if( !instance.addPair( pairAssigns[0], pairAssigns[1] ) ) {
+		          log.warning( String.format( "Unable to set [%s] and [%s] as paired. Was it already defined earlier in the file?", pairAssigns[0], pairAssigns[1] ) );
+		        }
+	    	} else {
+	    		log.warning(String.format("Skipping malformed Pair line [%s]", line));
+	    	}
 	        break;
 	      case PARTIAL:
-	        String[] partialParts = tokenize( line, ",", 2 );
-	        log.fine( partialParts[0] );
-	        log.fine( partialParts[1] );
-	        Assignable partialAssigns = parseAssignable( partialParts[0] );
-	        Slot partialSlot = parseSlot( partialParts[1], partialParts[0].contains("LAB") || partialParts[0].contains("TUT") );
-	        instance.addPartAssign( partialAssigns, partialSlot );
+	    	if (line.matches(partialPattern)) {
+		        String[] partialParts = tokenize( line, ",", 2 );
+		        log.fine( partialParts[0] );
+		        log.fine( partialParts[1] );
+		        Assignable partialAssigns = parseAssignable( partialParts[0] );
+		        Slot partialSlot = parseSlot( partialParts[1], partialParts[0].contains("LAB") || partialParts[0].contains("TUT") );
+		        instance.addPartAssign( partialAssigns, partialSlot );
+	    	} else {
+	    		log.warning(String.format("Skipping malformed Partial line [%s]", line));
+	    	}
 	        break;
 	    }
 	}
