@@ -39,14 +39,22 @@ Constraints constraints;
 
 	public Assignment makeSchedule() {
 		
+		int tries = 0;
+		int maxTries = 5;
+		boolean validSchedule = false;
 		//initialize();
-		OrTree t = new OrTree(assign, inst, rand);
-		//If false it is impossible to make a valid assignment without violating hard constrants 
-		boolean validSchedule = t.makeTree();
-		
-		if (!validSchedule)
-			throw new HardConstraintViolationException("Assignment can not be made wiohout violating hard constrants");
-		
+		while(tries<maxTries && !(validSchedule)) {
+			OrTree t = new OrTree(assign, inst, rand);
+			//If false it is impossible to make a valid assignment without violating hard constrants 
+			validSchedule = t.makeTree();
+			//System.out.println("Successfully created tree");
+			if (!validSchedule) {
+				tries++;
+			}
+			if (!validSchedule && tries>= 5) {
+				throw new HardConstraintViolationException("Assignment can not be made wiohout violating hard constrants");
+			}
+		}
 		return assign;
 
 	}

@@ -22,6 +22,10 @@ public class OrTree {
 	Assignment assign;
 	Instance inst;
 	
+	// Sanity checks to ensure loop terminates
+	int hardCap = 2500;
+	int i=0;
+	
 	public OrTree(Assignment a, Instance i, Random r) {
 		this.assign = a;
 		this.inst = i;
@@ -52,16 +56,18 @@ public class OrTree {
 		ArrayList<Slot> remainingLabSlots = new ArrayList<Slot>(labSlots);
 		ArrayList<Assignable> localUnassigned = new ArrayList<Assignable>(stillUnassigned);
 		
-		// System.out.println("Assign index = " + assignIndex + ", numUnassigned = " + stillUnassigned.size());
+		//System.out.println("Assign index = " + assignIndex + ", numUnassigned = " + stillUnassigned.size());
 		
 		Assignable currentAssign = stillUnassigned.get(assignIndex);
 		boolean validSubTree = false;
-		while(!validSubTree) {
+		while(!validSubTree && i < hardCap) {
+			i++;
+			if(i>= hardCap) {return false;}
 			if (!currentAssign.isLab())
 			{
 				if (remainingCourseSlots.size() == 0)
 				{
-					// System.out.println("Remaining course slots = 0");
+					//System.out.println("Remaining course slots = 0");
 					return false;
 				}
 				
@@ -69,7 +75,7 @@ public class OrTree {
 				
 				try {
 					Slot s = remainingCourseSlots.get(nextCourseSlotIndex);
-					// System.out.println("Index: " + assignIndex + "; Attempting to assign " + currentAssign.toString() + " to " + s.toString() + ".");
+					//System.out.println("Index: " + assignIndex + "; Attempting to assign " + currentAssign.toString() + " to " + s.toString() + ".");
 					// System.out.println("Size of remaining course slots: " + remainingCourseSlots.size());
 					localUnassigned.remove(assignIndex);
 					assign.add(s, currentAssign);
@@ -81,6 +87,7 @@ public class OrTree {
 						assign.remove(currentAssign);
 					}
 					// System.out.println("Size before remove: " + remainingCourseSlots.size());
+					//System.out.println("Successfully assigned " + currentAssign.toString() + " to " + s.toString() + ".");
 					remainingCourseSlots.remove(nextCourseSlotIndex);
 					// System.out.println("Size after remove: " + remainingCourseSlots.size());
 					
@@ -103,7 +110,7 @@ public class OrTree {
 				
 				try {
 					Slot s = remainingLabSlots.get(nextLabSlotIndex);
-					// System.out.println("Index: " + assignIndex + "; Attempting to assign " + currentAssign.toString() + " to " + s.toString() + ".");
+					//System.out.println("Index: " + assignIndex + "; Attempting to assign " + currentAssign.toString() + " to " + s.toString() + ".");
 					// System.out.println("Size of remaining lab slots: " + remainingLabSlots.size());
 					// System.out.println("Going to remove index " + assignIndex + " from something of size " + localUnassigned.size());
 					localUnassigned.remove(assignIndex);
@@ -114,9 +121,6 @@ public class OrTree {
 						localUnassigned.add(assignIndex, currentAssign);
 						assign.remove(currentAssign);
 					}
-					else {
-						localUnassigned.add(assignIndex, currentAssign);
-					}
 					// System.out.println("Size before remove: " + remainingLabSlots.size());
 					remainingLabSlots.remove(nextLabSlotIndex);
 					// System.out.println("Size after remove: " + remainingLabSlots.size());
@@ -126,12 +130,12 @@ public class OrTree {
 					remainingLabSlots.remove(nextLabSlotIndex);
 					validSubTree = false;
 				}
-				// System.out.println("Size before re-loop: " + remainingLabSlots.size());
+				//System.out.println("Size before re-loop: " + remainingLabSlots.size());
 				
 			}
 			
 		}
-		
+		if(i>= hardCap) {return false;}
 		return true;
 	}
 
