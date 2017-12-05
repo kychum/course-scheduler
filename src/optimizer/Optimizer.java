@@ -29,12 +29,14 @@ public class Optimizer{
   private int w_secdiff;
 
   public Optimizer( Assignment assignment, Random newRNG) {
-    this( assignment, 10, 10, 10, 10, newRNG );
+    this( assignment, 10, 10, 10, 10, newRNG, 1, 1, 1, 1 );
   }
 
-  public Optimizer( Assignment assignment, int min, int pref, int pair, int sec, Random newRNG ) {
+  public Optimizer( Assignment assignment, int min, int pref, int pair, int sec, Random newRNG, 
+		  			int pen_labsmin, int pen_coursemin, int pen_notpaired, int pen_section) {
     this.assignment = assignment;
-    this.assignment.setWeights( min, pref, pair, sec );
+    this.assignment.setWeights( min, pref, pair, sec);
+    this.assignment.setPenalties(pen_labsmin, pen_coursemin, pen_notpaired, pen_section);
     this.instance = assignment.getInstance();
     this.rand=newRNG;
     w_minfilled = min;
