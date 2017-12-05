@@ -21,21 +21,22 @@ public class Optimizer{
   private Assignment assignment;
   private Instance instance;
   private static Logger log = Logger.getLogger("Optimizer");
-  private static Random rand = new Random();
+  private static Random rand;
 
   private int w_minfilled;
   private int w_pref;
   private int w_pair;
   private int w_secdiff;
 
-  public Optimizer( Assignment assignment ) {
-    this( assignment, 10, 10, 10, 10 );
+  public Optimizer( Assignment assignment, Random newRNG) {
+    this( assignment, 10, 10, 10, 10, newRNG );
   }
 
-  public Optimizer( Assignment assignment, int min, int pref, int pair, int sec ) {
+  public Optimizer( Assignment assignment, int min, int pref, int pair, int sec, Random newRNG ) {
     this.assignment = assignment;
     this.assignment.setWeights( min, pref, pair, sec );
     this.instance = assignment.getInstance();
+    this.rand=newRNG;
     w_minfilled = min;
     w_pref = pref;
     w_pair = pair;

@@ -61,7 +61,7 @@ public class Main {
         Scheduler s = new Scheduler(i, rand);
         Assignment assign = s.makeSchedule(); // Or otherwise get assignment from scheduler
         //System.out.println("Initialization complete");
-        Optimizer optimizer = new Optimizer( assign, minfilled, pref, pair, secdiff );
+        Optimizer optimizer = new Optimizer( assign, minfilled, pref, pair, secdiff, rand );
         Assignment optimized = optimizer.optimize();
         if( best == null || optimized.eval() < best.eval() ) {
           best = optimized;
