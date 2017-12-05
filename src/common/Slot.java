@@ -110,7 +110,7 @@ public class Slot implements Comparable<Slot> {
     this.startTime = LocalTime.of( 18, 00 );
     this.endTime = LocalTime.of( 19, 00 );
     this.isLab = false;
-    this.minAssign = 1;
+    this.minAssign = 0;
     this.maxAssign = 2;
   }
 
@@ -139,12 +139,14 @@ public class Slot implements Comparable<Slot> {
    * @return True if the times of the slots overlap, false otherwise
    */
   private boolean timeOverlaps( Slot other ) {
-      if( this.startTime.compareTo( other.startTime ) <= 0 ) {
-        return this.endTime.compareTo( other.endTime ) > 0;
-      }
-      else {
-        return this.startTime.compareTo( other.endTime ) < 0;
-      }
+    if(this.startTime.equals( other.startTime ) && this.endTime.equals( other.endTime ) )
+      return true;
+    if( this.startTime.compareTo( other.startTime ) <= 0 ) {
+      return this.endTime.compareTo( other.startTime ) > 0;
+    }
+    else {
+      return this.startTime.compareTo( other.endTime ) < 0;
+    }
   }
 
   /**

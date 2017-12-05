@@ -206,4 +206,40 @@ class AssignmentTest{
     assertThrows( HardConstraintViolationException.class, () -> a.swap( c1, c2 ) );
     assertThrows( HardConstraintViolationException.class, () -> a.move( c1, s2 ) );
   }
+
+  @Test
+  @DisplayName( "CPSC 813 incompatability" )
+  void test813() {
+    Instance i = new Instance();
+    Slot s1 = new Slot( "MO", "8:00", 100, 0, false );
+    Slot s2 = new Slot( "MO", "9:00", 100, 0, false );
+    Slot s3 = new Slot( "TU", "17:00", 100, 0, false );
+    Slot s4 = new Slot( "TU", "18:30", 100, 0, false );
+    assertTrue( Slot.getSpecialSlot().overlaps( s3 ) );
+    assertTrue( Slot.getSpecialSlot().overlaps( s4 ) );
+    Course c1 = new Course( "CPSC", 313, 1 );
+    Course c2 = new Course( "CPSC", 100, 1 );
+    Course c3 = new Course( "CPSC", 413, 1 );
+    i.addCourseSlot( s1 );
+    i.addCourseSlot( s2 );
+    i.addCourseSlot( s3 );
+    i.addCourseSlot( s4 );
+    i.addCourse( c1 );
+    i.addCourse( c2 );
+    i.addCourse( c3 );
+    i.addIncomp( c1, c2 );
+    i.addIncomp( c3, c2 );
+    i.finalizeInstance();
+    Assignment a = new Assignment( i );
+    assertTrue( a.getAssignmentsByCourse().containsKey( Course.getCPSC813() ), "CPSC813 should be assigned" );
+    assertTrue( a.getAssignmentsByCourse().containsKey( Course.getCPSC913() ), "CPSC913 should be assigned" );
+    assertTrue( a.getAssignmentsByCourse().get( Course.getCPSC813() ).equals( Slot.getSpecialSlot() ), "CPSC813 should be in the special slot" );
+    assertTrue( a.getAssignmentsByCourse().get( Course.getCPSC913() ).equals( Slot.getSpecialSlot() ), "CPSC913 should be in the special slot" );
+    assertThrows( HardConstraintViolationException.class, () -> a.add(c1, s3), "Overlap main course (813) before should not be allowed" );
+    assertThrows( HardConstraintViolationException.class, () -> a.add(c1, s4), "Overlap main course (813) after should not be allowed" );
+    assertThrows( HardConstraintViolationException.class, () -> a.add(c2, s3), "Overlap incompatible before should not be allowed" );
+    assertThrows( HardConstraintViolationException.class, () -> a.add(c2, s4), "Overlap incompatible after should not be allowed" );
+    assertThrows( HardConstraintViolationException.class, () -> a.add(c3, s4), "Overlap main course (913) after should not be allowed" );
+    assertThrows( HardConstraintViolationException.class, () -> a.add(c3, s4), "Overlap main course (913) after should not be allowed" );
+  }
 }

@@ -109,8 +109,10 @@ public class Main {
             break;
           case "timed":
             timed = Integer.parseInt( kvPair[1] ) != 0;
+            break;
           case "timeout":
             timeout = Integer.parseInt( kvPair[1] );
+            break;
           default:
             log.warning( String.format( "Unknown setting [%s=%s]. Ignoring..", kvPair[0], kvPair[1] ) );
             break;

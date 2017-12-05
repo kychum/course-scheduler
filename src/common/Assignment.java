@@ -114,6 +114,22 @@ public class Assignment {
     }
   }
 
+  private void verifyIncomp( Assignable course, Slot slot ) throws HardConstraintViolationException {
+    Slot[] overlappers = assignments.keySet().stream().filter( s -> slot.overlaps( s ) ).toArray( Slot[]::new );
+    log.severe("overlapers length is " + overlappers.length );
+    for( Slot s : overlappers ) {
+      verifyIncomp( course, assignments.get( s ) );
+    }
+  }
+
+  private void verifyIncomp( Assignable course, Slot slot, Assignable ignore) throws HardConstraintViolationException {
+    Slot[] overlappers = assignments.keySet().stream().filter( s -> slot.overlaps( s ) ).toArray( Slot[]::new );
+    log.severe("overlapers length is " + overlappers.length );
+    for( Slot s : overlappers ) {
+      verifyIncomp( course, assignments.get( s ), ignore );
+    }
+  }
+
   //Convenience function
   public void add(Assignable a, Slot s) throws HardConstraintViolationException {
     add(s, a);
@@ -149,7 +165,7 @@ public class Assignment {
     }
 
     // Check constraints
-    verifyIncomp( assignment, currentList );
+    verifyIncomp( assignment, instanceSlot );
     verifyUnwanted( assignment, instanceSlot );
     verifyMax( instanceSlot );
 
@@ -213,8 +229,8 @@ public class Assignment {
 	  s1List = this.assignments.get(s1);
 	  s2List = this.assignments.get(s2);
 
-    verifyIncomp( a1, s2List, a2 );
-    verifyIncomp( a2, s1List, a1 );
+    verifyIncomp( a1, s2, a2 );
+    verifyIncomp( a2, s1, a1 );
     verifyUnwanted( a1, s2 );
     verifyUnwanted( a2, s1 );
 
