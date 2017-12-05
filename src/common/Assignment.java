@@ -13,6 +13,7 @@ public class Assignment {
   private Instance instance;
   private static Logger log = Logger.getLogger("Assignment");
   private int[] weights;
+  private int[] penalties;
 
   public Assignment(Assignment other) {
     if(other.courseAssignments == null);
@@ -32,6 +33,10 @@ public class Assignment {
 
   public void setWeights(int min, int pref, int pair, int sec){
     weights = new int[]{min, pref, pair, sec};
+  }
+
+  public void setPenalties( int labsmin, int coursemin, int notpaired, int section ) {
+    penalties = new int[]{ labsmin, coursemin, notpaired, section };
   }
 
   public Assignment(Instance instance) {
@@ -331,21 +336,23 @@ public class Assignment {
   }
 
   public int eval() {
-    return eval( weights[0], weights[1], weights[2], weights[3] );
+    return eval( weights[0], weights[1], weights[2], weights[3], penalties[0], penalties[1], penalties[2], penalties[3] );
   }
 
-  public int eval( int w_minfilled, int w_pref, int w_pair, int w_secdiff ) {
-    int minfilled = evalMinFilled();
+  public int eval( int w_minfilled, int w_pref, int w_pair, int w_secdiff, int pen_labmin, int pen_coursemin, int pen_notpaired, int pen_section) {
+    int minfilled = evalMinFilled(pen_labmin, pen_coursemin);
     int pref = evalPref();
-    int pair = evalPair();
-    int secdiff = evalSecDiff();
+    int pair = evalPair() * pen_notpaired;
+    int secdiff = evalSecDiff() * pen_section;
 
     return (minfilled * w_minfilled) + (pref * w_pref) + (pair * w_pair) + (secdiff * w_secdiff);
   }
 
-  public int evalMinFilled() {
+  public int evalMinFilled(int pen_labmin, int pen_coursemin) {
+    HashSet<Slot> minViolations = getMinViolations();
     if( getMinViolations() != null )
-      return getMinViolations().size();
+      return minViolations.stream().filter( a -> instance.getLabsHash().contains( a ) ).count()*pen_labsmin +
+        minViolations.stream().filter( a -> instance.getCoursesHash().contains( a ) ).count()*pen_coursemin;
     return 0;
   }
 

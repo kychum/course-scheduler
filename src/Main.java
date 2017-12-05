@@ -15,6 +15,10 @@ public class Main {
   static int pair = 10;
   static int secdiff = 10;
   static int maxRuns = 50;
+  static int pen_labsmin = 1;
+  static int pen_coursemin = 1;
+  static int pen_notpaired = 1;
+  static int pen_section = 1;
   static boolean timed = false;
   static int timeout = 600;
   static Logger log;
@@ -66,7 +70,7 @@ public class Main {
         log.info( "Starting iteration " + ctr );
         Scheduler s = new Scheduler(i, rand);
         Assignment assign = s.makeSchedule(); // Or otherwise get assignment from scheduler
-        Optimizer optimizer = new Optimizer( assign, minfilled, pref, pair, secdiff, rand );
+        Optimizer optimizer = new Optimizer( assign, minfilled, pref, pair, secdiff, rand, pen_labsmin, pen_coursemin, pen_notpaired, pen_section );
         Assignment optimized = optimizer.optimize();
         if( best == null || optimized.eval() < best.eval() ) {
           best = optimized;
@@ -118,6 +122,18 @@ public class Main {
             break;
           case "timeout":
             timeout = Integer.parseInt( kvPair[1] );
+            break;
+          case "pen_labsmin":
+            pen_labsmin = Integer.parseInt( kvPair[1] );
+            break;
+          case "pen_coursemin":
+            pen_coursemin = Integer.parseInt( kvPair[1] );
+            break;
+          case "pen_notpaired":
+            pen_notpaired = Integer.parseInt( kvPair[1] );
+            break;
+          case "pen_section":
+            pen_section = Integer.parseInt( kvPair[1] );
             break;
           default:
             log.warning( String.format( "Unknown setting [%s=%s]. Ignoring..", kvPair[0], kvPair[1] ) );
