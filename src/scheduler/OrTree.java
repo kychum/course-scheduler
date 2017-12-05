@@ -23,7 +23,7 @@ public class OrTree {
 	Instance inst;
 	
 	// Sanity checks to ensure loop terminates
-	int hardCap = 2500;
+	int hardCap = 25000;
 	int i = 0;
 	
 	public OrTree(Assignment a, Instance i, Random r) {
