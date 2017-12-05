@@ -33,25 +33,53 @@ public class Parser{
 	
 	public void parseLine( String line, Instance instance, ArrayList<String[]> prefCache ) {
 	    log.fine( String.format( "Parsing line [%s] in mode [%s]", line, this.mode.name() ) );
+        String slotPattern = "\\s*(MO|TU|FR)\\s*,\\s*\\d+:\\d+\\s*,\\s*\\d+\\s*,\\s*\\d+\\s*";
+        String coursePattern = "\\s*\\w{4}\\s+\\d{3}\\s+LEC\\s+\\d\\d?\\s*";
+        String slotSimplePattern = "\\s*(MO|TU|FR)\\s*,\\s*\\d+:\\d+\\s*"; 
+        String labPattern = "\\s*\\w{4}\\s+\\d{3}\\s+(LEC\\s+\\d+\\s+)?(TUT|LAB)\\s+\\d\\d?\\s*";
+        String notCompatPattern = String.format("(%s\\s*,\\s*%s|%s\\s*,\\s*%s|%s\\s*,\\s*%s|%s\\s*,\\    s*%s)", 
+                                                coursePattern, coursePattern,
+                                                coursePattern, labPattern,
+                                                labPattern, coursePattern,
+                                                labPattern, labPattern);
+        String unwantedPattern = String.format("(%s\\s*,\\s*%s|%s\\s*,\\s*%s)", 
+                                               coursePattern, slotSimplePattern, 
+                                               labPattern, slotSimplePattern);
 	    switch( this.mode ) {
 	      case NAME:
-	        instance.setName( line );
+	    	instance.setName( line );
 	        break;
 	      case CSLOT:
-	        Slot courseSlot = parseSlot( line, false );
-	        instance.addCourseSlot( courseSlot );
+	    	if (line.matches(slotPattern)) {
+	    		Slot courseSlot = parseSlot( line, false );
+	        	instance.addCourseSlot( courseSlot );
+	    	} else {
+	    		log.warning(String.format("Skipping malformed Course Slot line [%s]", line));
+	    	}
 	        break;
 	      case LSLOT:
-	        Slot labSlot = parseSlot( line, true );
-	        instance.addLabSlot( labSlot );
+	    	if (line.matches(slotPattern)) {
+	    		Slot labSlot = parseSlot( line, true );
+	        	instance.addLabSlot( labSlot );
+	    	} else {
+	    		log.warning(String.format("Skipping malformed Lab Slot line [%s]", line));
+	    	}
 	        break;
 	      case COURSE:
-	        Course course = parseCourse( line );
-	        instance.addCourse( course );
+	    	if (line.matches(coursePattern)) {
+	    		Course course = parseCourse( line );
+	        	instance.addCourse( course );
+	    	} else {
+	    		log.warning(String.format("Skipping malformed Course line [%s]", line));
+	    	}
 	        break;
 	      case LAB:
-	        Lab lab = parseLab( line );
-	        instance.addLab( lab );
+	    	if (line.matches(labPattern)) {
+	    		Lab lab = parseLab( line );
+	        	instance.addLab( lab );
+	    	} else {
+	    		log.warning(String.format("Skipping malformed Lab line [%s]", line));
+	    	}
 	        break;
 	      case NOTCOMPAT:
 	        Assignable[] ncAssigns = Arrays.stream( tokenize( line, "," ) )
