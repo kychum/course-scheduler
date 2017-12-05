@@ -44,13 +44,15 @@ public class OrTree {
 	private boolean makeTreeRec(int assignIndex, ArrayList<Assignable> stillUnassigned) {
 		//System.out.println("Node index: " + assignIndex + ".");
 		
-		// NOTE TO SELF: Attempt to randomly choose root, rather than starting from index 0 for root. 
+		// NOTE TO SELF: Attempt to randomly choose root, rather than starting from index 0 for root.
 		if (stillUnassigned.size()==0)
 			return true;
 		
 		ArrayList<Slot> remainingCourseSlots = new ArrayList<Slot>(courseSlots);
 		ArrayList<Slot> remainingLabSlots = new ArrayList<Slot>(labSlots);
 		ArrayList<Assignable> localUnassigned = new ArrayList<Assignable>(stillUnassigned);
+		
+		// System.out.println("Assign index = " + assignIndex + ", numUnassigned = " + stillUnassigned.size());
 		
 		Assignable currentAssign = stillUnassigned.get(assignIndex);
 		boolean validSubTree = false;
@@ -67,8 +69,8 @@ public class OrTree {
 				
 				try {
 					Slot s = remainingCourseSlots.get(nextCourseSlotIndex);
-					//System.out.println("Index: " + assignIndex + "; Attempting to assign " + currentAssign.toString() + " to " + s.toString() + ".");
-					//System.out.println("Size of remaining course slots: " + remainingCourseSlots.size());
+					// System.out.println("Index: " + assignIndex + "; Attempting to assign " + currentAssign.toString() + " to " + s.toString() + ".");
+					// System.out.println("Size of remaining course slots: " + remainingCourseSlots.size());
 					localUnassigned.remove(assignIndex);
 					assign.add(s, currentAssign);
 					// System.out.println("numUnassigned = " + localUnassigned.size());
@@ -103,11 +105,13 @@ public class OrTree {
 					Slot s = remainingLabSlots.get(nextLabSlotIndex);
 					// System.out.println("Index: " + assignIndex + "; Attempting to assign " + currentAssign.toString() + " to " + s.toString() + ".");
 					// System.out.println("Size of remaining lab slots: " + remainingLabSlots.size());
+					// System.out.println("Going to remove index " + assignIndex + " from something of size " + localUnassigned.size());
 					localUnassigned.remove(assignIndex);
 					assign.add(s, currentAssign);
 					validSubTree = makeTreeRec(rand.nextInt(localUnassigned.size()==0?1:localUnassigned.size()), localUnassigned);
 					if (!validSubTree) {
-						System.out.println("Failed to assign " + currentAssign.toString() + " to " + s.toString() + ".");
+						// System.out.println("Failed to assign " + currentAssign.toString() + " to " + s.toString() + ".");
+						localUnassigned.add(assignIndex, currentAssign);
 						assign.remove(currentAssign);
 					}
 					else {
