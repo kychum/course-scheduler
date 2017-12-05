@@ -50,8 +50,9 @@ public class Main {
       i = p.parseFile( args[0] );
     }
     else {
-      printUsage();
-      return;
+      i = p.parseFile("test/input/deptinst2.txt");
+      //printUsage();
+      //return;
     }
     try{
       log.info( "Running search on instance:\n" + i.toString() );
@@ -59,7 +60,7 @@ public class Main {
       // finalize the instance, this adds relevant hard constraints from the assignment spec
       i.finalizeInstance();
       Assignment best = null;
-      Random rand = new Random(0);
+      Random rand = new Random(7);
       long startTime = System.currentTimeMillis();
       int ctr;
       for( ctr = 0; ctr < maxRuns; ++ctr ) {

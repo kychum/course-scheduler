@@ -1,4 +1,5 @@
 import common.*;
+import optimizer.Optimizer;
 import parser.Parser;
 import scheduler.Scheduler;
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,26 +21,19 @@ class InitializerTest {
 	
 	@ParameterizedTest
 	@DisplayName("Test Initializer")
-	@ValueSource( strings = { "deptinst2.txt", "example1", "gehtnicht3.txt",
-		    "gehtnicht4.txt", "gehtnicht5.txt", "gehtnicht6.txt", "gehtnicht10.txt", "gehtnicht11.txt", "gehtnicht12.txt", "minnumber.txt",
-		    "pairing.txt", "parallelpen.txt", "prefexamp.txt", "deptinst1.txt" } )
-	void doInit(String filename) {
-    Random rand = new Random();
-		String file = "test/input/" + filename;
-		System.out.println("Starting file: " + filename);
-		Instance i = parser.parseFile(file);
-		i.finalizeInstance();
-		Scheduler s = new Scheduler(i, rand);
-		String expected = filename + ".expected";
-		String out = s.getAssignment().toString();
-	    BufferedWriter writer;
-	    try {
-	    	writer = new BufferedWriter(new FileWriter(expected));
-	    	writer.write(out);
-	    	writer.close();
-	    } catch (IOException e) {
-	    	e.printStackTrace();
-	    }
+	@ValueSource( strings = { "deptinst1.txt", "deptinst2.txt", "example1.txt", "minnumber.txt",
+							  "parallelpen.txt", "prefexamp.txt"} )
+	  void doInit(String filename) {
+	  Instance i = parser.parseFile("test/input/" + filename);
+	
+	  // finalize the instance, this adds relevant hard constraints from the assignment spec
+	  i.finalizeInstance();
+	  Assignment best = null;
+	  Random rand = new Random();
+	  long startTime = System.currentTimeMillis();
+	  int ctr;
+	  Scheduler s = new Scheduler(i, rand);
+	  Assignment assign = s.makeSchedule(); // Or otherwise get assignment from scheduler
 	}
 
 }
