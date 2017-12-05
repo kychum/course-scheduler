@@ -352,10 +352,9 @@ public class Assignment {
 
   public int evalMinFilled(int pen_labsmin, int pen_coursemin) {
     HashSet<Slot> minViolations = getMinViolations();
-    log.warning( minViolations.size() + "");
     if( getMinViolations() != null )
-      return (int)minViolations.stream().filter( a -> instance.getLabsHash().contains( a ) ).count()*pen_labsmin +
-        (int)minViolations.stream().filter( a -> instance.getCoursesHash().contains( a ) ).count()*pen_coursemin;
+      return (int)minViolations.stream().filter( a -> instance.getLabSlotsHash().contains( a ) ).count()*pen_labsmin +
+        (int)minViolations.stream().filter( a -> instance.getCourseSlotsHash().contains( a ) ).count()*pen_coursemin;
     return 0;
   }
 
