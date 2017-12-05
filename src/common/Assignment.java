@@ -29,6 +29,7 @@ public class Assignment {
       assignments.put( s, cloned );
     });
     this.weights = other.weights;
+    this.penalties = other.penalties;
   }
 
   public void setWeights(int min, int pref, int pair, int sec){
@@ -57,6 +58,7 @@ public class Assignment {
       add( slot, assign );
     });
     setWeights( 10, 10, 10, 10 );
+    setPenalties( 1, 1, 1, 1 );
   }
 
   public Instance getInstance() {
@@ -339,8 +341,8 @@ public class Assignment {
     return eval( weights[0], weights[1], weights[2], weights[3], penalties[0], penalties[1], penalties[2], penalties[3] );
   }
 
-  public int eval( int w_minfilled, int w_pref, int w_pair, int w_secdiff, int pen_labmin, int pen_coursemin, int pen_notpaired, int pen_section) {
-    int minfilled = evalMinFilled(pen_labmin, pen_coursemin);
+  public int eval( int w_minfilled, int w_pref, int w_pair, int w_secdiff, int pen_labsmin, int pen_coursemin, int pen_notpaired, int pen_section) {
+    int minfilled = evalMinFilled(pen_labsmin, pen_coursemin);
     int pref = evalPref();
     int pair = evalPair() * pen_notpaired;
     int secdiff = evalSecDiff() * pen_section;
@@ -348,11 +350,12 @@ public class Assignment {
     return (minfilled * w_minfilled) + (pref * w_pref) + (pair * w_pair) + (secdiff * w_secdiff);
   }
 
-  public int evalMinFilled(int pen_labmin, int pen_coursemin) {
+  public int evalMinFilled(int pen_labsmin, int pen_coursemin) {
     HashSet<Slot> minViolations = getMinViolations();
+    log.warning( minViolations.size() + "");
     if( getMinViolations() != null )
-      return minViolations.stream().filter( a -> instance.getLabsHash().contains( a ) ).count()*pen_labsmin +
-        minViolations.stream().filter( a -> instance.getCoursesHash().contains( a ) ).count()*pen_coursemin;
+      return (int)minViolations.stream().filter( a -> instance.getLabsHash().contains( a ) ).count()*pen_labsmin +
+        (int)minViolations.stream().filter( a -> instance.getCoursesHash().contains( a ) ).count()*pen_coursemin;
     return 0;
   }
 
