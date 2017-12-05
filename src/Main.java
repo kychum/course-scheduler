@@ -20,8 +20,11 @@ public class Main {
   static int pen_notpaired = 1;
   static int pen_section = 1;
   static boolean timed = false;
+  static boolean doLogging = true;
   static int timeout = 600;
   static Logger log;
+  static Assignment best = null;
+  static boolean printed = false;
 
   public static void printUsage() {
     System.out.println( "Usage: java -jar Scheduler.jar <input file>" );
@@ -32,18 +35,32 @@ public class Main {
 	// setup handler for logging
     System.setProperty( "java.util.logging.SimpleFormatter.format",
         "[%1$tF %1$tT] [%4$s] [%2$s]  %5$s%6$s%n");
+
+    // Print out the best solution if program is killed
+    // Does not catch kill -9.
+    Runtime.getRuntime().addShutdownHook( new Thread() {
+      public void run() {
+        if( best != null && !printed) {
+          System.out.println( "The best solution found so far is:" );
+          System.out.println( best.toString() );
+        }
+      }
+    });
+
+    // load the config containing weights
+    loadConfig();
+
     for( Handler h : Logger.getLogger("").getHandlers() ) {
       // Remove the default handler to get rid of duplicate infos
       Logger.getLogger("").removeHandler(h);
     }
     Handler h = new ConsoleHandler();
-    h.setLevel(Level.ALL);
+    if( doLogging )
+      h.setLevel(Level.INFO);
+    else
+      h.setLevel(Level.OFF);
     Logger.getLogger("").addHandler( h );
-    Logger.getLogger("").setLevel(Level.INFO);
     log = Logger.getLogger("Main");
-    
-    // load the config containing weights
-    loadConfig();
 
     // create a parser so we can begin reading input file
     Parser p = new Parser();
@@ -62,7 +79,6 @@ public class Main {
 
       // finalize the instance, this adds relevant hard constraints from the assignment spec
       i.finalizeInstance();
-      Assignment best = null;
       Random rand = new Random(0);
       long startTime = System.currentTimeMillis();
       int ctr;
@@ -70,6 +86,7 @@ public class Main {
         log.info( "Starting iteration " + ctr );
         Scheduler s = new Scheduler(i, rand);
         Assignment assign = s.makeSchedule(); // Or otherwise get assignment from scheduler
+        if( best == null ) best = assign;
         Optimizer optimizer = new Optimizer( assign, minfilled, pref, pair, secdiff, rand, pen_labsmin, pen_coursemin, pen_notpaired, pen_section );
         Assignment optimized = optimizer.optimize();
         if( best == null || optimized.eval() < best.eval() ) {
@@ -83,6 +100,7 @@ public class Main {
       }
       System.out.println( "The best solution after " + ctr + " runs is:" );
       System.out.println( best.toString() );
+      printed = true;
     }
     catch( HardConstraintViolationException e ) {
       System.out.println( String.format( "Unable to find a solution for the given instance! Reason: %s", e.getMessage() ) );
@@ -102,16 +120,16 @@ public class Main {
 
         String[] kvPair = line.split( "=" );
         switch( kvPair[0] ) {
-          case "minfilled":
+          case "w_minfilled":
             minfilled = Integer.parseInt( kvPair[1] );
             break;
-          case "pref":
+          case "w_pref":
             pref = Integer.parseInt( kvPair[1] );
             break;
-          case "pair":
+          case "w_pair":
             pair = Integer.parseInt( kvPair[1] );
             break;
-          case "secdiff":
+          case "w_secdiff":
             secdiff = Integer.parseInt( kvPair[1] );
             break;
           case "maxRuns":
@@ -135,8 +153,11 @@ public class Main {
           case "pen_section":
             pen_section = Integer.parseInt( kvPair[1] );
             break;
+          case "suppress_log":
+            doLogging = Integer.parseInt( kvPair[1] ) == 0;
+            break;
           default:
-            log.warning( String.format( "Unknown setting [%s=%s]. Ignoring..", kvPair[0], kvPair[1] ) );
+            System.err.println( String.format( "Unknown setting [%s=%s]. Ignoring..", kvPair[0], kvPair[1] ) );
             break;
         }
       }
