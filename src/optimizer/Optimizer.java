@@ -54,7 +54,7 @@ public class Optimizer{
     return assignment;
   }
 
-  // Note that the current solution lacks randomness
+
   public Assignment optimize() {
     if( assignment.eval() == 0 ) return assignment;
 

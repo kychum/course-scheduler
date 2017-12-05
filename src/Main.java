@@ -53,13 +53,14 @@ public class Main {
       log.info( "Running search on instance:\n" + i.toString() );
       i.finalizeInstance();
       Assignment best = null;
-      Random rand = new Random(0);
+      Random rand = new Random(43);
       long startTime = System.currentTimeMillis();
       int ctr;
       for( ctr = 0; ctr < maxRuns; ++ctr ) {
         log.info( "Starting iteration " + ctr );
         Scheduler s = new Scheduler(i, rand);
         Assignment assign = s.makeSchedule(); // Or otherwise get assignment from scheduler
+        System.out.println("Initialization complete");
         Optimizer optimizer = new Optimizer( assign, minfilled, pref, pair, secdiff );
         Assignment optimized = optimizer.optimize();
         if( best == null || optimized.eval() < best.eval() ) {
