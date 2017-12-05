@@ -12,7 +12,6 @@ import common.Slot;
 public class OrTree {
 	
 	ArrayList<Assignable> assignables;
-	ArrayList<Assignable> unassigned;
 	ArrayList<Slot> courseSlots;
 	ArrayList<Slot> labSlots;
 	Random rand;
@@ -30,7 +29,6 @@ public class OrTree {
 		assignables.addAll(inst.getLabs());
 		courseSlots = inst.getCourseSlots();
 		labSlots = inst.getLabSlots();
-		unassigned = new ArrayList<Assignable>(assignables);
 		
 		this.rand = r;
 		
@@ -38,28 +36,28 @@ public class OrTree {
 	}
 	
 	public boolean makeTree(){
-		return makeTreeRec(rand.nextInt(assignables.size()), unassigned);
+		
+		
+		return makeTreeRec(0);
 	}
 	
-	private boolean makeTreeRec(int assignIndex, ArrayList<Assignable> stillUnassigned) {
+	private boolean makeTreeRec(int assignIndex) {
 		//System.out.println("Node index: " + assignIndex + ".");
 		
-		// NOTE TO SELF: Attempt to randomly choose root, rather than starting from index 0 for root. 
-		if (stillUnassigned.size()==0)
+		if (assignIndex == assignables.size())
 			return true;
 		
 		ArrayList<Slot> remainingCourseSlots = new ArrayList<Slot>(courseSlots);
 		ArrayList<Slot> remainingLabSlots = new ArrayList<Slot>(labSlots);
-		ArrayList<Assignable> localUnassigned = new ArrayList<Assignable>(stillUnassigned);
 		
-		Assignable currentAssign = stillUnassigned.get(assignIndex);
+		
+		Assignable currentAssign = assignables.get(assignIndex);
 		boolean validSubTree = false;
 		while(!validSubTree) {
 			if (!currentAssign.isLab())
 			{
 				if (remainingCourseSlots.size() == 0)
 				{
-					// System.out.println("Remaining course slots = 0");
 					return false;
 				}
 				
@@ -67,27 +65,18 @@ public class OrTree {
 				
 				try {
 					Slot s = remainingCourseSlots.get(nextCourseSlotIndex);
-					//System.out.println("Index: " + assignIndex + "; Attempting to assign " + currentAssign.toString() + " to " + s.toString() + ".");
-					//System.out.println("Size of remaining course slots: " + remainingCourseSlots.size());
-					localUnassigned.remove(assignIndex);
 					assign.add(s, currentAssign);
-					// System.out.println("numUnassigned = " + localUnassigned.size());
-					validSubTree = makeTreeRec(rand.nextInt(localUnassigned.size()==0?1:localUnassigned.size()), localUnassigned);
+					validSubTree = makeTreeRec(assignIndex + 1);
 					if (!validSubTree) {
-						// System.out.println("Failed to assign " + currentAssign.toString() + " to " + s.toString() + ".");
-						localUnassigned.add(assignIndex, currentAssign);
 						assign.remove(currentAssign);
 					}
-					// System.out.println("Size before remove: " + remainingCourseSlots.size());
 					remainingCourseSlots.remove(nextCourseSlotIndex);
-					// System.out.println("Size after remove: " + remainingCourseSlots.size());
+					
 					
 				} catch (HardConstraintViolationException e) {
-					localUnassigned.add(assignIndex, currentAssign);
 					remainingCourseSlots.remove(nextCourseSlotIndex);
 					validSubTree = false;
 				}
-				// System.out.println("Size before re-loop: " + remainingCourseSlots.size());
 				
 				
 			} else {
@@ -101,28 +90,18 @@ public class OrTree {
 				
 				try {
 					Slot s = remainingLabSlots.get(nextLabSlotIndex);
-					// System.out.println("Index: " + assignIndex + "; Attempting to assign " + currentAssign.toString() + " to " + s.toString() + ".");
-					// System.out.println("Size of remaining lab slots: " + remainingLabSlots.size());
-					localUnassigned.remove(assignIndex);
 					assign.add(s, currentAssign);
-					validSubTree = makeTreeRec(rand.nextInt(localUnassigned.size()==0?1:localUnassigned.size()), localUnassigned);
+					validSubTree = makeTreeRec(assignIndex + 1);
 					if (!validSubTree) {
-						System.out.println("Failed to assign " + currentAssign.toString() + " to " + s.toString() + ".");
 						assign.remove(currentAssign);
 					}
-					else {
-						localUnassigned.add(assignIndex, currentAssign);
-					}
-					// System.out.println("Size before remove: " + remainingLabSlots.size());
 					remainingLabSlots.remove(nextLabSlotIndex);
-					// System.out.println("Size after remove: " + remainingLabSlots.size());
+					
 					
 				} catch (HardConstraintViolationException e) {
-					localUnassigned.add(assignIndex, currentAssign);
 					remainingLabSlots.remove(nextLabSlotIndex);
 					validSubTree = false;
 				}
-				// System.out.println("Size before re-loop: " + remainingLabSlots.size());
 				
 			}
 			
