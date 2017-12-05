@@ -4,8 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.*;
 import org.junit.jupiter.params.provider.*;
+import java.util.Random;
 
 class OptimizerTest {
+  static Random rand = new Random();
   @Test
   @DisplayName( "Optimal instance should have no changes" )
   void testAlreadyOptimal() {
@@ -18,7 +20,7 @@ class OptimizerTest {
     i.addCourse( c );
     Assignment a = new Assignment( i );
     a.add( c, s );
-    Optimizer o = new Optimizer( a );
+    Optimizer o = new Optimizer( a, rand );
     o.optimize();
     assertEquals( s, o.getAssignment().getAssignmentsByCourse().get( c ) );
   }
@@ -48,7 +50,7 @@ class OptimizerTest {
     a.add( c2, s1 );
     a.add( l1, s3 );
     a.add( l2, s3 );
-    Optimizer o = new Optimizer( a );
+    Optimizer o = new Optimizer( a, rand );
     o.optimize();
     System.out.println( o.getAssignment().toString() );
     assertEquals( 1, o.getAssignment().getAssignmentsBySlot().get( s2 ).size(), "A course should have been assigned to the courseslot violating coursemin" );
@@ -71,7 +73,7 @@ class OptimizerTest {
     Assignment a = new Assignment( i );
     a.add( c1, s1 );
     a.add( c2, s2 );
-    Optimizer o = new Optimizer( a );
+    Optimizer o = new Optimizer( a, rand );
     o.optimize();
     Assignment last = o.getAssignment();
     assertTrue( last.getAssignmentsByCourse().get( c1 ).equals( last.getAssignmentsByCourse().get( c2 )), "Pair violation should have been fixed by optimizer" );
@@ -95,7 +97,7 @@ class OptimizerTest {
     assertTrue( a.getAssignmentsByCourse().get( c1 ).equals( a.getAssignmentsByCourse().get( c2 )) );
     assertEquals( 10, a.eval() );
 
-    Optimizer o = new Optimizer( a );
+    Optimizer o = new Optimizer( a, rand );
     o.optimize();
     Assignment last = o.getAssignment();
     assertFalse( last.getAssignmentsByCourse().get( c1 ).equals( last.getAssignmentsByCourse().get( c2 )), "Section violation should have been fixed by optimizer" );
@@ -118,7 +120,7 @@ class OptimizerTest {
     assertEquals( 1, a.getPrefViolations().size() );
     assertEquals( 1000, a.eval() );
 
-    Optimizer o = new Optimizer( a );
+    Optimizer o = new Optimizer( a, rand );
     o.optimize();
     Assignment last = o.getAssignment();
     assertEquals( s2, last.getAssignmentsByCourse().get( c1 ) );

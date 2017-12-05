@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.*;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Random;
 
 class InitializerTest {
 	static Parser parser;
@@ -23,11 +24,12 @@ class InitializerTest {
 		    "gehtnicht4.txt", "gehtnicht5.txt", "gehtnicht6.txt", "gehtnicht10.txt", "gehtnicht11.txt", "gehtnicht12.txt", "minnumber.txt",
 		    "pairing.txt", "parallelpen.txt", "prefexamp.txt", "deptinst1.txt" } )
 	void doInit(String filename) {
+    Random rand = new Random();
 		String file = "test/input/" + filename;
 		System.out.println("Starting file: " + filename);
 		Instance i = parser.parseFile(file);
 		i.finalizeInstance();
-		Scheduler s = new Scheduler(i);
+		Scheduler s = new Scheduler(i, rand);
 		String expected = filename + ".expected";
 		String out = s.getAssignment().toString();
 	    BufferedWriter writer;
