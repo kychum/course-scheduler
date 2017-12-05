@@ -74,6 +74,9 @@ public class Main {
       printUsage();
       return;
     }
+
+    if( i == null ) return;
+
     try{
       log.info( "Running search on instance:\n" + i.toString() );
 

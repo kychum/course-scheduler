@@ -258,12 +258,18 @@ public class Parser{
 	        }
 	      }
 	    }
+      catch (java.nio.file.NoSuchFileException e) {
+        System.err.println( String.format("Could not find the file [%s]", file));
+        return null;
+      }
 	    catch (java.io.FileNotFoundException e) {
-	    	log.severe( String.format("Could not find the file [%s]", file));
+        System.err.println( String.format("Could not find the file [%s]", file));
+        return null;
 	    }
 	    catch(IOException e){
 	      log.severe( String.format( "Encountered an error when parsing the file [%s]", file ) );
 	      e.printStackTrace();
+        return null;
 	    }
 	    
 	    for (String[] prefParts : prefCache) {
