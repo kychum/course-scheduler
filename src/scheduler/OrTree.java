@@ -57,7 +57,7 @@ public class OrTree {
 		
 		Assignable currentAssign = assignables.get(assignIndex);
 		while (assign.getCourseAssignments().containsKey(currentAssign)) {
-			assignIndex++;
+			if (assignIndex < assignables.size()-1) {assignIndex++;}
 			currentAssign = assignables.get(assignIndex);
 		}
 		
