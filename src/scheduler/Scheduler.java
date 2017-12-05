@@ -28,34 +28,27 @@ Random rand;
 Assignment assign;
 Constraints constraints;
 	
-	public Scheduler(Instance i) {
+	public Scheduler(Instance i, Random rand) {
 		this.inst = i;
 		assign = new Assignment(i);
 		this.constraints = this.inst.getConstraints();
-		makeSchedule();
-		System.out.println( assign.toString() );
-		Optimizer o = new Optimizer(assign);
-		o.optimize();
-		System.out.println( o.getAssignment().toString() );
+		this.rand = rand;
 	}
 
 
 
-	public void makeSchedule() {
+	public Assignment makeSchedule() {
 		
-		rand = new Random(0);
 		//initialize();
 		OrTree t = new OrTree(assign, inst, rand);
 		//If false it is impossible to make a valid assignment without violating hard constrants 
 		boolean validSchedule = t.makeTree();
 		
 		if (!validSchedule)
-			System.out.println("Assignment can not be made without violating hard constrants");
+			throw new HardConstraintViolationException("Assignment can not be made wiohout violating hard constrants");
 		
-			
-			
-		
-		//hillClimb();
+		return assign;
+
 	}
 	
 

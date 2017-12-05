@@ -55,8 +55,8 @@ public class Optimizer{
   }
 
   // Note that the current solution lacks randomness
-  public void optimize() {
-    if( assignment.eval() == 0 ) return;
+  public Assignment optimize() {
+    if( assignment.eval() == 0 ) return assignment;
 
     log.info( "Beginning optimization" );
     HashSet<Slot> min = assignment.getMinViolations();
@@ -173,6 +173,8 @@ public class Optimizer{
 
       log.finer( String.format("At the end of the loop, min[%d], pair[%d], pref[%d], secdiff[%d]", min.size(), pair.size(), pref.size(), secdiff.size()));
     }
+
+    return assignment;
   }
 
   enum Operation { MOVE, MOVE_SECOND, SWAP, SWAP_SECOND, NONE }
@@ -247,19 +249,19 @@ public class Optimizer{
         case MOVE:
           assignment.move( pair.first, secondSlot );
           log.info( String.format( "Moving [%s] to [%s] for a decrease of [%d]. Post-move eval=[%d]", pair.first.toString(), secondSlot.toString(), bestDecrease, assignment.eval() ) );
-          break;
+          return true;
         case MOVE_SECOND:
           assignment.move( pair.second, firstSlot );
           log.info( String.format( "Moving [%s] to [%s] for a decrease of [%d]. Post-move eval=[%d]", pair.second.toString(), firstSlot.toString(), bestDecrease, assignment.eval() ) );
-          break;
+          return true;
         case SWAP:
           assignment.swap( pair.first, bestMove.second.first );
           log.info( String.format( "Swapping [%s] with [%s] for a decrease of [%d]. Post-move eval=[%d]", pair.first.toString(), bestMove.second.first.toString(), bestDecrease, assignment.eval() ) );
-          break;
+          return true;
         case SWAP_SECOND:
           assignment.swap( pair.second, bestMove.second.first );
           log.info( String.format( "Swapping [%s] with [%s] for a decrease of [%d]. Post-move eval=[%d]", pair.second.toString(), bestMove.second.first.toString(), bestDecrease, assignment.eval() ) );
-          break;
+          return true;
       }
     }
     return false;
@@ -306,19 +308,19 @@ public class Optimizer{
         case MOVE:
           assignment.move( section.first, bestMove.second.second );
           log.info( String.format("Moving [%s] to [%s] for a decrease of [%d]. Final eval is [%d]", section.first.toString(), bestMove.second.second.toString(), bestDecrease, assignment.eval() ));
-          break;
+          return true;
         case MOVE_SECOND:
           assignment.move( section.second, bestMove.second.second );
           log.info( String.format("Moving [%s] to [%s] for a decrease of [%d]. Final eval is [%d]", section.second.toString(), bestMove.second.second.toString(), bestDecrease, assignment.eval() ));
-          break;
+          return true;
         case SWAP:
           assignment.swap( section.first, bestMove.second.first );
           log.info( String.format("Swapping [%s] to [%s] for a decrease of [%d]. Final eval is [%d]", section.first.toString(), bestMove.second.first.toString(), bestDecrease, assignment.eval() ));
-          break;
+          return true;
         case SWAP_SECOND:
           assignment.swap( section.second, bestMove.second.first );
           log.info( String.format("Swapping [%s] to [%s] for a decrease of [%d]. Final eval is [%d]", section.second.toString(), bestMove.second.first.toString(), bestDecrease, assignment.eval() ));
-          break;
+          return true;
       }
     }
     return false;

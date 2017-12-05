@@ -27,3 +27,12 @@ hs_err_pid*
 tags
 
 /bin/
+/deptinst1.txt.expected
+/deptinst2.txt.expected
+/example1.expected
+/gehtnicht6.txt.expected
+/gehtnicht10.txt.expected
+/gehtnicht11.txt.expected
+/minnumber.txt.expected
+/parallelpen.txt.expected
+/prefexamp.txt.expected
