@@ -12,6 +12,7 @@ import common.Slot;
 public class OrTree {
 	
 	ArrayList<Assignable> assignables;
+	ArrayList<Assignable> unassigned;
 	ArrayList<Slot> courseSlots;
 	ArrayList<Slot> labSlots;
 	Random rand;
@@ -29,6 +30,7 @@ public class OrTree {
 		assignables.addAll(inst.getLabs());
 		courseSlots = inst.getCourseSlots();
 		labSlots = inst.getLabSlots();
+		unassigned = new ArrayList<Assignable>(assignables);
 		
 		this.rand = r;
 		
@@ -36,39 +38,30 @@ public class OrTree {
 	}
 	
 	public boolean makeTree(){
-		
-		
-		return makeTreeRec(0);
+		return makeTreeRec(rand.nextInt(assignables.size()), unassigned);
 	}
 	
-	private boolean makeTreeRec(int assignIndex) {
+	private boolean makeTreeRec(int assignIndex, ArrayList<Assignable> stillUnassigned) {
 		//System.out.println("Node index: " + assignIndex + ".");
 		
-<<<<<<< HEAD
 		// NOTE TO SELF: Attempt to randomly choose root, rather than starting from index 0 for root.
 		if (stillUnassigned.size()==0)
-=======
-		if (assignIndex == assignables.size())
->>>>>>> branch 'master' of https://github.com/kychum/course-scheduler.git
 			return true;
 		
 		ArrayList<Slot> remainingCourseSlots = new ArrayList<Slot>(courseSlots);
 		ArrayList<Slot> remainingLabSlots = new ArrayList<Slot>(labSlots);
+		ArrayList<Assignable> localUnassigned = new ArrayList<Assignable>(stillUnassigned);
 		
-<<<<<<< HEAD
 		// System.out.println("Assign index = " + assignIndex + ", numUnassigned = " + stillUnassigned.size());
 		
 		Assignable currentAssign = stillUnassigned.get(assignIndex);
-=======
-		
-		Assignable currentAssign = assignables.get(assignIndex);
->>>>>>> branch 'master' of https://github.com/kychum/course-scheduler.git
 		boolean validSubTree = false;
 		while(!validSubTree) {
 			if (!currentAssign.isLab())
 			{
 				if (remainingCourseSlots.size() == 0)
 				{
+					// System.out.println("Remaining course slots = 0");
 					return false;
 				}
 				
@@ -76,24 +69,27 @@ public class OrTree {
 				
 				try {
 					Slot s = remainingCourseSlots.get(nextCourseSlotIndex);
-<<<<<<< HEAD
 					// System.out.println("Index: " + assignIndex + "; Attempting to assign " + currentAssign.toString() + " to " + s.toString() + ".");
 					// System.out.println("Size of remaining course slots: " + remainingCourseSlots.size());
 					localUnassigned.remove(assignIndex);
-=======
->>>>>>> branch 'master' of https://github.com/kychum/course-scheduler.git
 					assign.add(s, currentAssign);
-					validSubTree = makeTreeRec(assignIndex + 1);
+					// System.out.println("numUnassigned = " + localUnassigned.size());
+					validSubTree = makeTreeRec(rand.nextInt(localUnassigned.size()==0?1:localUnassigned.size()), localUnassigned);
 					if (!validSubTree) {
+						// System.out.println("Failed to assign " + currentAssign.toString() + " to " + s.toString() + ".");
+						localUnassigned.add(assignIndex, currentAssign);
 						assign.remove(currentAssign);
 					}
+					// System.out.println("Size before remove: " + remainingCourseSlots.size());
 					remainingCourseSlots.remove(nextCourseSlotIndex);
-					
+					// System.out.println("Size after remove: " + remainingCourseSlots.size());
 					
 				} catch (HardConstraintViolationException e) {
+					localUnassigned.add(assignIndex, currentAssign);
 					remainingCourseSlots.remove(nextCourseSlotIndex);
 					validSubTree = false;
 				}
+				// System.out.println("Size before re-loop: " + remainingCourseSlots.size());
 				
 				
 			} else {
@@ -107,30 +103,30 @@ public class OrTree {
 				
 				try {
 					Slot s = remainingLabSlots.get(nextLabSlotIndex);
-<<<<<<< HEAD
 					// System.out.println("Index: " + assignIndex + "; Attempting to assign " + currentAssign.toString() + " to " + s.toString() + ".");
 					// System.out.println("Size of remaining lab slots: " + remainingLabSlots.size());
 					// System.out.println("Going to remove index " + assignIndex + " from something of size " + localUnassigned.size());
 					localUnassigned.remove(assignIndex);
-=======
->>>>>>> branch 'master' of https://github.com/kychum/course-scheduler.git
 					assign.add(s, currentAssign);
-					validSubTree = makeTreeRec(assignIndex + 1);
+					validSubTree = makeTreeRec(rand.nextInt(localUnassigned.size()==0?1:localUnassigned.size()), localUnassigned);
 					if (!validSubTree) {
-<<<<<<< HEAD
 						// System.out.println("Failed to assign " + currentAssign.toString() + " to " + s.toString() + ".");
 						localUnassigned.add(assignIndex, currentAssign);
-=======
->>>>>>> branch 'master' of https://github.com/kychum/course-scheduler.git
 						assign.remove(currentAssign);
 					}
+					else {
+						localUnassigned.add(assignIndex, currentAssign);
+					}
+					// System.out.println("Size before remove: " + remainingLabSlots.size());
 					remainingLabSlots.remove(nextLabSlotIndex);
-					
+					// System.out.println("Size after remove: " + remainingLabSlots.size());
 					
 				} catch (HardConstraintViolationException e) {
+					localUnassigned.add(assignIndex, currentAssign);
 					remainingLabSlots.remove(nextLabSlotIndex);
 					validSubTree = false;
 				}
+				// System.out.println("Size before re-loop: " + remainingLabSlots.size());
 				
 			}
 			
