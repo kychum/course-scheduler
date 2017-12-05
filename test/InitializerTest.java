@@ -23,17 +23,21 @@ class InitializerTest {
 	@DisplayName("Test Initializer")
 	@ValueSource( strings = { "deptinst1.txt", "deptinst2.txt", "example1", "minnumber.txt",
 							  "parallelpen.txt", "prefexamp.txt"} )
+	  
 	  void doInit(String filename) {
-	  Instance i = parser.parseFile("test/input/" + filename);
-	
-	  // finalize the instance, this adds relevant hard constraints from the assignment spec
-	  i.finalizeInstance();
-	  Assignment best = null;
-	  Random rand = new Random();
-	  long startTime = System.currentTimeMillis();
-	  int ctr;
-	  Scheduler s = new Scheduler(i, rand);
-	  Assignment assign = s.makeSchedule(); // Or otherwise get assignment from scheduler
-	}
+		  int[] seeds = {0,1,2,3,4,5,6,7,8,9,10};
+	  	  for (int seed: seeds) {
+		  Instance i = parser.parseFile("test/input/" + filename);
+		
+		  // finalize the instance, this adds relevant hard constraints from the assignment spec
+		  i.finalizeInstance();
+		  Assignment best = null;
+		  Random rand = new Random(seed);
+		  long startTime = System.currentTimeMillis();
+		  int ctr;
+		  Scheduler s = new Scheduler(i, rand);
+		  Assignment assign = s.makeSchedule(); // Or otherwise get assignment from scheduler
+	  	}
+	  }
 
 }
