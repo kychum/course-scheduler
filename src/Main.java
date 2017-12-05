@@ -50,7 +50,7 @@ public class Main {
       i = p.parseFile( args[0] );
     }
     else {
-      i = p.parseFile("test/input/deptinst2.txt");
+      i = p.parseFile("test/input/out-of-order.txt");
       //printUsage();
       //return;
     }

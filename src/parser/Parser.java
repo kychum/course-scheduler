@@ -4,6 +4,8 @@ import common.Instance;
 import common.Course;
 import common.Slot;
 import common.Lab;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Logger;
 import java.nio.file.FileSystems;
@@ -29,7 +31,7 @@ public class Parser{
     // default to name, this is usually top line
     private Mode mode = Mode.NAME;
 	
-	public void parseLine( String line, Instance instance ) {
+	public void parseLine( String line, Instance instance, ArrayList<String[]> prefCache ) {
 	    log.fine( String.format( "Parsing line [%s] in mode [%s]", line, this.mode.name() ) );
 	    switch( this.mode ) {
 	      case NAME:
@@ -72,7 +74,8 @@ public class Parser{
 	        Slot prefSlot = parseSlot( String.join( ",", prefParts[0], prefParts[1] ), prefIsLab );
 	        int prefValue = Integer.parseInt( prefParts[3] );
 	        if( !instance.addPreference( prefAssigns, prefSlot, prefValue ) ){
-	          log.warning( String.format( "Ignoring preference [%d] for class [%s] to slot [%s]. Is the slot a valid slot?", prefValue, prefAssigns.toString(), prefSlot.toString() ));
+	          log.warning( String.format( "Ignoring preference [%d] for class [%s] to slot [%s]. Is the slot a valid slot? Caching for later.", prefValue, prefAssigns.toString(), prefSlot.toString() ));
+	          prefCache.add(prefParts);
 	        }
 	        break;
 	      case PAIR:
@@ -193,12 +196,13 @@ public class Parser{
 	  public Instance parseFile( String file ) {
 	    Instance instance = new Instance();
 	    BufferedReader inFile;
+	    ArrayList<String[]> prefCache = new ArrayList<String[]>();
 	    try{
 	      inFile = Files.newBufferedReader( FileSystems.getDefault().getPath( file ) );
 	      while( inFile.ready() ) {
 	        String line = inFile.readLine().trim();
 	        if( !changeMode( line ) && !line.equals( "" ) ) {
-	          parseLine( line, instance );
+	          parseLine( line, instance, prefCache );
 	        }
 	      }
 	    }
@@ -208,6 +212,16 @@ public class Parser{
 	    catch(IOException e){
 	      log.severe( String.format( "Encountered an error when parsing the file [%s]", file ) );
 	      e.printStackTrace();
+	    }
+	    
+	    for (String[] prefParts : prefCache) {
+	    	Assignable prefAssigns = parseAssignable( prefParts[2] );
+	        boolean prefIsLab = prefParts[2].contains("LAB") || prefParts[2].contains("TUT");
+	        Slot prefSlot = parseSlot( String.join( ",", prefParts[0], prefParts[1] ), prefIsLab );
+	        int prefValue = Integer.parseInt( prefParts[3] );
+	        if( !instance.addPreference( prefAssigns, prefSlot, prefValue ) ){
+	          log.warning( String.format( "Ignoring preference [%d] for class [%s] to slot [%s]. Is the slot a valid slot?", prefValue, prefAssigns.toString(), prefSlot.toString() ));
+	        }
 	    }
 	
 	    return instance;

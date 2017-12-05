@@ -21,7 +21,7 @@ class InitializerTest {
 	
 	@ParameterizedTest
 	@DisplayName("Test Initializer")
-	@ValueSource( strings = { "deptinst1.txt", "deptinst2.txt", "example1.txt", "minnumber.txt",
+	@ValueSource( strings = { "deptinst1.txt", "deptinst2.txt", "example1", "minnumber.txt",
 							  "parallelpen.txt", "prefexamp.txt"} )
 	  void doInit(String filename) {
 	  Instance i = parser.parseFile("test/input/" + filename);
