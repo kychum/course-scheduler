@@ -18,6 +18,12 @@ public class Main {
   static boolean timed = false;
   static int timeout = 600;
   static Logger log;
+
+  public static void printUsage() {
+    System.out.println( "Usage: java -jar Scheduler.jar <input file>" );
+    System.out.println( "If running from compiled .class:\n        java Main <input file>" );
+  }
+
   public static void main( String[] args ) {
 	// setup handler for logging
     System.setProperty( "java.util.logging.SimpleFormatter.format",
@@ -43,14 +49,13 @@ public class Main {
       i = p.parseFile( args[0] );
     }
     else {
-    	//i = p.parseFile( "test.txt" );
-    	//i = p.parseFile("test/input/gehtnicht3.txt");
-    	i = p.parseFile("test/input/deptinst2.txt");
+      printUsage();
+      return;
     }
-    // finalize the instance, this adds relevant hard constraints from the assignment spec
-    
     try{
       log.info( "Running search on instance:\n" + i.toString() );
+
+      // finalize the instance, this adds relevant hard constraints from the assignment spec
       i.finalizeInstance();
       Assignment best = null;
       Random rand = new Random(0);
@@ -60,7 +65,6 @@ public class Main {
         log.info( "Starting iteration " + ctr );
         Scheduler s = new Scheduler(i, rand);
         Assignment assign = s.makeSchedule(); // Or otherwise get assignment from scheduler
-        //System.out.println("Initialization complete");
         Optimizer optimizer = new Optimizer( assign, minfilled, pref, pair, secdiff, rand );
         Assignment optimized = optimizer.optimize();
         if( best == null || optimized.eval() < best.eval() ) {

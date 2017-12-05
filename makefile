@@ -13,7 +13,7 @@ test: all
 	javac $(TESTSOURCES) -d "test/bin" -cp "$(TESTJARS):bin"
 
 release: all
-	jar cfve Scheduler.jar Main bin
+	pushd bin && jar cfve Scheduler.jar Main . && popd
 
 clean:
 	rm -rf bin

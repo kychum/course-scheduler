@@ -116,7 +116,6 @@ public class Assignment {
 
   private void verifyIncomp( Assignable course, Slot slot ) throws HardConstraintViolationException {
     Slot[] overlappers = assignments.keySet().stream().filter( s -> slot.overlaps( s ) ).toArray( Slot[]::new );
-    log.severe("overlapers length is " + overlappers.length );
     for( Slot s : overlappers ) {
       verifyIncomp( course, assignments.get( s ) );
     }
@@ -124,7 +123,6 @@ public class Assignment {
 
   private void verifyIncomp( Assignable course, Slot slot, Assignable ignore) throws HardConstraintViolationException {
     Slot[] overlappers = assignments.keySet().stream().filter( s -> slot.overlaps( s ) ).toArray( Slot[]::new );
-    log.severe("overlapers length is " + overlappers.length );
     for( Slot s : overlappers ) {
       verifyIncomp( course, assignments.get( s ), ignore );
     }
