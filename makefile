@@ -14,6 +14,7 @@ test: all
 
 release: all
 	pushd bin && jar cfve Scheduler.jar Main . && popd
+	mv bin/Scheduler.jar .
 
 clean:
 	rm -rf bin
